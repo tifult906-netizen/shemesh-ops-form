@@ -4,44 +4,71 @@
   <h2>1. העלאת מסמכים</h2>
   <p class="muted">העלה את כל המסמכים הדרושים לפעולת המשיכה. המערכת תחלץ את הנתונים אוטומטית.</p>
 
-  <form method="post" action="/upload" enctype="multipart/form-data">
-    <div class="row">
-      <div class="field">
-        <label>תעודת זהות – צד קדמי</label>
-        <input type="file" name="id_front" accept="image/*" required>
+  <!-- Smart bulk drop zone at the top -->
+  <div id="bulk-drop" class="bulk-drop">
+    <div class="bulk-drop-inner">
+      <div class="bulk-drop-icon">⬇</div>
+      <div class="bulk-drop-text">
+        <strong>גרור את כל הקבצים לכאן בבת אחת</strong><br>
+        <span class="muted">המערכת תזהה כל קובץ לפי שמו ותשבץ אותו במקום הנכון</span>
       </div>
-      <div class="field">
-        <label>תעודת זהות – צד אחורי / ספח</label>
-        <input type="file" name="id_back" accept="image/*" required>
+    </div>
+  </div>
+
+  <p class="muted" style="text-align: center; margin: 16px 0 8px;">— או — שייך כל קובץ לתיבה שלו ידנית —</p>
+
+  <form method="post" action="/upload" enctype="multipart/form-data" id="upload-form">
+    <div class="row">
+      <div class="field"><label>תעודת זהות – צד קדמי</label>
+        <div class="dropzone" data-field="id_front" data-accept="image">
+          <input type="file" name="id_front" accept="image/*" required>
+          <div class="dropzone-hint">גרור לכאן או לחץ לבחירה</div>
+        </div>
+      </div>
+      <div class="field"><label>תעודת זהות – צד אחורי / ספח</label>
+        <div class="dropzone" data-field="id_back" data-accept="image">
+          <input type="file" name="id_back" accept="image/*" required>
+          <div class="dropzone-hint">גרור לכאן או לחץ לבחירה</div>
+        </div>
       </div>
     </div>
 
     <div class="row">
-      <div class="field">
-        <label>אישור ניהול חשבון</label>
-        <input type="file" name="bank" accept="application/pdf" required>
+      <div class="field"><label>אישור ניהול חשבון</label>
+        <div class="dropzone" data-field="bank" data-accept="pdf">
+          <input type="file" name="bank" accept="application/pdf" required>
+          <div class="dropzone-hint">גרור PDF לכאן או לחץ לבחירה</div>
+        </div>
       </div>
-      <div class="field">
-        <label>דוח יתרות תגמולים</label>
-        <input type="file" name="tagmulim" accept="application/pdf" required>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="field">
-        <label>דוח יתרות פיצויים</label>
-        <input type="file" name="pitsuyim" accept="application/pdf" required>
-      </div>
-      <div class="field">
-        <label>דוח מסלקה (אופציונלי)</label>
-        <input type="file" name="maslaka" accept="application/pdf">
+      <div class="field"><label>דוח יתרות תגמולים</label>
+        <div class="dropzone" data-field="tagmulim" data-accept="pdf">
+          <input type="file" name="tagmulim" accept="application/pdf" required>
+          <div class="dropzone-hint">גרור PDF לכאן או לחץ לבחירה</div>
+        </div>
       </div>
     </div>
 
     <div class="row">
-      <div class="field">
-        <label>אישור תקופות ביטוח ומעסיקים – ביטוח לאומי (אופציונלי)</label>
-        <input type="file" name="bl_history" accept="application/pdf">
+      <div class="field"><label>דוח יתרות פיצויים</label>
+        <div class="dropzone" data-field="pitsuyim" data-accept="pdf">
+          <input type="file" name="pitsuyim" accept="application/pdf" required>
+          <div class="dropzone-hint">גרור PDF לכאן או לחץ לבחירה</div>
+        </div>
+      </div>
+      <div class="field"><label>דוח מסלקה (אופציונלי)</label>
+        <div class="dropzone" data-field="maslaka" data-accept="pdf">
+          <input type="file" name="maslaka" accept="application/pdf">
+          <div class="dropzone-hint">גרור PDF לכאן או לחץ לבחירה</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field"><label>אישור תקופות ביטוח ומעסיקים – ביטוח לאומי (אופציונלי)</label>
+        <div class="dropzone" data-field="bl_history" data-accept="pdf">
+          <input type="file" name="bl_history" accept="application/pdf">
+          <div class="dropzone-hint">גרור PDF לכאן או לחץ לבחירה</div>
+        </div>
       </div>
     </div>
 
@@ -50,4 +77,251 @@
     </div>
   </form>
 </div>
+
+<style>
+.dropzone {
+  position: relative;
+  border: 2px dashed #b0bac6;
+  border-radius: 6px;
+  padding: 12px 10px;
+  background: #fafbfc;
+  transition: all 0.15s;
+  min-height: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.dropzone:hover { border-color: #1a4a8c; background: #f0f4f8; }
+.dropzone.dragover { border-color: #1a4a8c; background: #e3eef9; border-style: solid; }
+.dropzone.has-file { border-color: #2e7d32; background: #f1f8e9; }
+.dropzone input[type=file] {
+  width: 100%; cursor: pointer; font-size: 13px;
+}
+.dropzone-hint {
+  font-size: 11px; color: #777; text-align: center; margin-top: 6px;
+}
+.dropzone.has-file .dropzone-hint {
+  color: #2e7d32; font-weight: 600;
+}
+.dropzone.has-file .dropzone-hint::before { content: "✓ "; }
+
+.bulk-drop {
+  border: 3px dashed #1a4a8c;
+  border-radius: 10px;
+  padding: 28px;
+  background: linear-gradient(135deg, #f0f4f8 0%, #e3eef9 100%);
+  margin-bottom: 6px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.bulk-drop.dragover {
+  border-style: solid; border-color: #2e7d32;
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  transform: scale(1.01);
+}
+.bulk-drop-inner {
+  display: flex; align-items: center; gap: 20px; justify-content: center;
+}
+.bulk-drop-icon { font-size: 38px; color: #1a4a8c; }
+.bulk-drop-text { font-size: 16px; color: #1a4a8c; text-align: right; }
+
+.bulk-status {
+  background: #fff; border: 1px solid #d8dde3; border-radius: 4px;
+  padding: 10px 14px; margin-top: 10px; font-size: 13px;
+}
+.bulk-status.success { background: #e8f5e9; border-color: #c5e1a5; color: #2e7d32; }
+.bulk-status.warn    { background: #fff8e1; border-color: #ffe082; color: #f57f17; }
+.bulk-status .file-row {
+  display: flex; gap: 10px; padding: 3px 0; font-size: 12px;
+}
+.bulk-status .file-name { flex: 1; font-weight: 500; }
+.bulk-status .file-target { color: #555; }
+</style>
+
+<script>
+// --- Per-field drop zones ---------------------------------------------------
+function bindDropzone(el) {
+  const input = el.querySelector('input[type=file]');
+  const hint = el.querySelector('.dropzone-hint');
+  const accept = el.dataset.accept; // 'image' or 'pdf'
+
+  function showFile(name) {
+    el.classList.add('has-file');
+    hint.textContent = name;
+  }
+  function clearFile() {
+    el.classList.remove('has-file');
+    hint.textContent = 'גרור לכאן או לחץ לבחירה';
+  }
+  function fileMatches(file) {
+    if (accept === 'image') return file.type.startsWith('image/');
+    if (accept === 'pdf')   return file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+    return true;
+  }
+
+  input.addEventListener('change', () => {
+    if (input.files.length) showFile(input.files[0].name);
+    else clearFile();
+  });
+
+  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('dragover'); });
+  el.addEventListener('dragleave', () => el.classList.remove('dragover'));
+  el.addEventListener('drop', e => {
+    e.preventDefault();
+    el.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    if (!fileMatches(file)) {
+      alert(`קובץ זה אינו תואם לשדה. סוג נדרש: ${accept === 'image' ? 'תמונה' : 'PDF'}`);
+      return;
+    }
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    input.files = dt.files;
+    showFile(file.name);
+  });
+}
+
+document.querySelectorAll('.dropzone').forEach(bindDropzone);
+
+// --- Bulk drop zone with smart routing -------------------------------------
+const ROUTING = [
+  { field: 'bank',       patterns: [/אישור.*חשבון/, /\bbank\b/i, /ניהול.*חשבון/], type: 'pdf' },
+  { field: 'tagmulim',   patterns: [/תגמולים/, /tagmul/i], type: 'pdf' },
+  { field: 'pitsuyim',   patterns: [/פיצויים/, /pitsuy/i, /pitzuy/i], type: 'pdf' },
+  { field: 'maslaka',    patterns: [/מסלקה/, /maslaka/i, /maslakeh/i], type: 'pdf' },
+  { field: 'bl_history', patterns: [/אישור.*תקופות/, /ביטוח.*מעסיקים/, /bituach.*leumi/i, /\bbl[-_ ]/i, /national.*insurance/i], type: 'pdf' },
+];
+
+function routeFiles(files) {
+  const results = []; // { file, field|null, reason }
+  const images = [];
+  const pdfs = [];
+  const used = new Set();
+
+  for (const f of files) {
+    const isImage = f.type.startsWith('image/');
+    const isPdf = f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
+    if (isImage) images.push(f);
+    else if (isPdf) pdfs.push(f);
+    else results.push({ file: f, field: null, reason: 'סוג לא נתמך' });
+  }
+
+  // PDFs: match by name pattern
+  for (const f of pdfs) {
+    let matched = null;
+    for (const rule of ROUTING) {
+      if (used.has(rule.field)) continue;
+      if (rule.patterns.some(p => p.test(f.name))) { matched = rule.field; break; }
+    }
+    if (matched) {
+      used.add(matched);
+      results.push({ file: f, field: matched, reason: 'זוהה לפי שם' });
+    } else {
+      // Fallback: first available PDF field in canonical order
+      const fallbackOrder = ROUTING.map(r => r.field);
+      const free = fallbackOrder.find(f => !used.has(f));
+      if (free) {
+        used.add(free);
+        results.push({ file: f, field: free, reason: 'שובץ במקום הפנוי' });
+      } else {
+        results.push({ file: f, field: null, reason: 'אין יותר תיבות PDF' });
+      }
+    }
+  }
+
+  // Images: ID front + back. Heuristics: filenames with "1"/"front"/"קדמי" → front,
+  // "2"/"back"/"אחורי"/"ספח" → back. Otherwise alphabetical.
+  const sortedImages = [...images].sort((a, b) => a.name.localeCompare(b.name));
+  for (const f of sortedImages) {
+    const isExplicitBack = /\(1\)|back|אחורי|ספח/i.test(f.name);
+    const isExplicitFront = /front|קדמי/i.test(f.name);
+    let target = null;
+    if (isExplicitFront && !used.has('id_front')) target = 'id_front';
+    else if (isExplicitBack && !used.has('id_back')) target = 'id_back';
+    else if (!used.has('id_front')) target = 'id_front';
+    else if (!used.has('id_back')) target = 'id_back';
+
+    if (target) {
+      used.add(target);
+      results.push({ file: f, field: target, reason: 'שובץ כתעודת זהות' });
+    } else {
+      results.push({ file: f, field: null, reason: 'יותר מ-2 תמונות' });
+    }
+  }
+  return results;
+}
+
+function applyRouting(results) {
+  for (const r of results) {
+    if (!r.field) continue;
+    const dz = document.querySelector(`.dropzone[data-field="${r.field}"]`);
+    if (!dz) continue;
+    const input = dz.querySelector('input[type=file]');
+    const dt = new DataTransfer();
+    dt.items.add(r.file);
+    input.files = dt.files;
+    dz.classList.add('has-file');
+    dz.querySelector('.dropzone-hint').textContent = r.file.name;
+  }
+  showStatus(results);
+}
+
+function showStatus(results) {
+  const old = document.getElementById('bulk-status');
+  if (old) old.remove();
+  const matched = results.filter(r => r.field).length;
+  const unmatched = results.filter(r => !r.field);
+  const el = document.createElement('div');
+  el.id = 'bulk-status';
+  el.className = 'bulk-status ' + (unmatched.length ? 'warn' : 'success');
+  let html = `<strong>שובצו ${matched} מתוך ${results.length} קבצים:</strong>`;
+  for (const r of results) {
+    const arrow = r.field ? '→' : '✗';
+    const target = r.field ? labelFor(r.field) : r.reason;
+    html += `<div class="file-row"><span>${arrow}</span><span class="file-name">${escapeHtml(r.file.name)}</span><span class="file-target">${target}</span></div>`;
+  }
+  el.innerHTML = html;
+  document.getElementById('bulk-drop').insertAdjacentElement('afterend', el);
+}
+
+function labelFor(field) {
+  return {
+    id_front: 'תעודת זהות – קדמי',
+    id_back:  'תעודת זהות – אחורי / ספח',
+    bank:     'אישור ניהול חשבון',
+    tagmulim: 'דוח יתרות תגמולים',
+    pitsuyim: 'דוח יתרות פיצויים',
+    maslaka:  'דוח מסלקה',
+    bl_history: 'אישור תקופות ביטוח ומעסיקים',
+  }[field] || field;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+const bulk = document.getElementById('bulk-drop');
+bulk.addEventListener('dragover', e => { e.preventDefault(); bulk.classList.add('dragover'); });
+bulk.addEventListener('dragleave', () => bulk.classList.remove('dragover'));
+bulk.addEventListener('drop', e => {
+  e.preventDefault();
+  bulk.classList.remove('dragover');
+  const files = Array.from(e.dataTransfer.files);
+  if (!files.length) return;
+  applyRouting(routeFiles(files));
+});
+
+// Click on bulk zone opens a multi-file picker
+bulk.addEventListener('click', () => {
+  const picker = document.createElement('input');
+  picker.type = 'file';
+  picker.multiple = true;
+  picker.accept = '.pdf,image/*';
+  picker.addEventListener('change', () => {
+    if (picker.files.length) applyRouting(routeFiles(Array.from(picker.files)));
+  });
+  picker.click();
+});
+</script>
 {% endblock %}
