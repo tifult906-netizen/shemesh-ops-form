@@ -29,18 +29,29 @@ checklist with copy-able commands and direct download links:
 
 → **https://tifult906-netizen.github.io/shemesh-ops-form/presentation/setup.html**
 
-**One-shot installer** (Windows — open PowerShell **as Administrator** and
-paste this; installs Python, Git, Ollama, clones the repo, installs deps,
-pulls the vision model, starts the app):
+**One-shot installer** (Windows): the most reliable path is to **download
+the script as a file and right-click → Run with PowerShell** — that
+sidesteps every terminal-paste / line-wrap quirk:
+
+→ https://tifult906-netizen.github.io/shemesh-ops-form/scripts/setup-windows.ps1
+
+If you prefer to paste into an already-open PowerShell (run as Admin),
+use 3 lines — each is a complete statement so terminal line-wrapping
+can't break the middle:
 
 ```powershell
-[Net.ServicePointManager]::SecurityProtocol='Tls12'; iex (New-Object Net.WebClient).DownloadString('https://tifult906-netizen.github.io/shemesh-ops-form/scripts/setup-windows.ps1')
+$u='https://tifult906-netizen.github.io/shemesh-ops-form/scripts/setup-windows.ps1'
+[Net.ServicePointManager]::SecurityProtocol='Tls12'
+iex (New-Object Net.WebClient).DownloadString($u)
 ```
 
-> Note: `iwr ... | iex` does **not** work for this repo's script because
-> GitHub Pages serves `.ps1` as `application/octet-stream`, so iwr returns
-> the body as `byte[]` and iex can't parse bytes. `Net.WebClient.DownloadString`
-> always returns a UTF-8 string.
+> Why not `iwr | iex` or one big line? Two gotchas to know about:
+> (1) GitHub Pages serves `.ps1` as `application/octet-stream`, so `iwr`
+> returns the body as `byte[]` and `iex` can't parse bytes. Use
+> `Net.WebClient.DownloadString` which always returns UTF-8 string.
+> (2) The classic Windows console (conhost) splits pasted text at the
+> terminal width (~70 cols), breaking long one-liners mid-expression.
+> Multi-line where each line is a complete statement avoids that.
 
 macOS / Linux equivalent:
 

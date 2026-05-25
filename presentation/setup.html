@@ -134,34 +134,53 @@
        והדבק את הפקודה הבאה. הסקריפט יתקין Python + Git + Ollama, יוריד את הכלי, ויפעיל אותו.</p>
 
     <div data-os-block="windows">
-      <p style="font-size: 13px; color: #555;">
-        <strong>שלב 1:</strong> פתח PowerShell <strong>כמנהל</strong> —
-        לחיצה ימנית על תפריט התחל → "Terminal (Admin)" או "Windows PowerShell (Admin)".
+      <p style="font-size: 14px; color: #2e7d32; font-weight: 600;">
+        ✓ המסלול הכי פשוט — שתי לחיצות עכבר, בלי טרמינל:
       </p>
-      <p style="font-size: 13px; color: #555;">
-        <strong>שלב 2:</strong> העתק את הפקודה הבאה והדבק בחלון PowerShell שנפתח, אז Enter:
-      </p>
-      <div class="cmd">
-        <code id="oneshot-windows">[Net.ServicePointManager]::SecurityProtocol='Tls12'; iex (New-Object Net.WebClient).DownloadString('https://tifult906-netizen.github.io/shemesh-ops-form/scripts/setup-windows.ps1')</code>
-        <button onclick="copyCmd('oneshot-windows', this)">העתק</button>
-      </div>
-      <details style="margin-top: 8px">
-        <summary style="font-size: 12px;">מריץ מ-cmd / מ-Run? (פקודה אלטרנטיבית)</summary>
-        <div style="font-size: 12px; padding-top: 6px;">
-          <p>אם אתה מדביק את הפקודה בחלון cmd או בדיאלוג Run במקום בתוך PowerShell, השתמש בגרסה הזו (היא קוראת ל-powershell.exe ושולחת לו את הפקודה):</p>
-          <div class="cmd">
-            <code id="oneshot-windows-cmd">powershell -NoProfile -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol='Tls12'; iex (New-Object Net.WebClient).DownloadString('https://tifult906-netizen.github.io/shemesh-ops-form/scripts/setup-windows.ps1')"</code>
-            <button onclick="copyCmd('oneshot-windows-cmd', this)">העתק</button>
+      <ol style="font-size: 14px; line-height: 1.8;">
+        <li>
+          לחץ על הכפתור הירוק והורד את הקובץ <code>setup-windows.ps1</code>
+          (יישמר בתיקיית ההורדות).
+          <div style="margin: 10px 0;">
+            <a class="btn success" href="../scripts/setup-windows.ps1" download style="font-size: 15px; padding: 12px 24px;">
+              ⬇ הורד setup-windows.ps1
+            </a>
           </div>
+        </li>
+        <li>
+          לחץ <strong>קליק ימני</strong> על הקובץ → <strong>Run with PowerShell</strong>.
+        </li>
+        <li>
+          אם Windows מבקש אישור Admin/UAC — אשר. הסקריפט ירוץ אוטומטית.
+        </li>
+      </ol>
+      <p style="font-size: 13px; color: #555; margin-top: 14px;">
+        זה עוקף לחלוטין את כל בעיות העתקת הפקודה לטרמינל. בסיום ההתקנה הדפדפן ייפתח אוטומטית בכלי.
+      </p>
+
+      <details style="margin-top: 18px">
+        <summary style="font-size: 13px; color: #1a4a8c; font-weight: 600;">מסלול חלופי — פקודות להעתקה (למשתמשים מנוסים)</summary>
+        <div style="padding-top: 10px;">
+          <p style="font-size: 13px;">
+            פתח PowerShell <strong>כמנהל</strong> והדבק את 3 השורות הבאות (כל שורה בנפרד, Enter בין כל אחת):
+          </p>
+          <div class="cmd">
+            <code id="oneshot-windows">$u='https://tifult906-netizen.github.io/shemesh-ops-form/scripts/setup-windows.ps1'
+[Net.ServicePointManager]::SecurityProtocol='Tls12'
+iex (New-Object Net.WebClient).DownloadString($u)</code>
+            <button onclick="copyCmd('oneshot-windows', this)">העתק</button>
+          </div>
+          <p style="font-size: 12px; color: #777;">
+            כל שורה היא הצהרה שלמה בפני עצמה — גם אם הטרמינל גולש את השורה, היא תעבוד.
+          </p>
         </div>
       </details>
-      <p style="font-size: 13px; margin-top: 10px;">או הורד את הסקריפט כקובץ:
-        <a href="../scripts/setup-windows.ps1" download>setup-windows.ps1</a>
-        ולחץ עליו לחיצה ימנית → <strong>Run with PowerShell</strong>.</p>
+
       <details style="margin-top: 6px">
         <summary style="font-size: 12px;">שגיאות נפוצות וכיצד לפתור</summary>
         <div style="font-size: 12px; line-height: 1.6;">
-          <p><strong>"-NoProfile is not recognized"</strong> — הדבקת את הפקודה הארוכה בתוך PowerShell. PowerShell מנסה להריץ את `-NoProfile` כפקודה. השתמש בגרסה הקצרה למעלה (זו שמתחילה ב-<code>[Net.ServicePointManager]</code>).</p>
+          <p><strong>"Missing closing ')'"</strong> — הטרמינל פיצל את הפקודה לשתי שורות. השתמש במסלול הראשי (הורדה + קליק ימני) — או בגרסה של 3 שורות.</p>
+          <p><strong>"-NoProfile is not recognized"</strong> — הדבקת פקודה ארוכה בתוך PowerShell (לא בתוך cmd). השתמש במסלול הראשי.</p>
           <p><strong>"running scripts is disabled"</strong> — סגור את החלון ופתח PowerShell <strong>כמנהל</strong>.</p>
           <p><strong>"winget לא מזוהה"</strong> — Windows שלך ישן. עדכן את "App Installer" מ-Microsoft Store, או השתמש במסלול הידני למטה.</p>
           <p><strong>"python is not recognized" אחרי שלב 1</strong> — סגור את PowerShell ופתח חלון חדש (כדי לרענן PATH), אז הרץ את הסקריפט שוב — הוא יזהה מה כבר מותקן וידלג.</p>
