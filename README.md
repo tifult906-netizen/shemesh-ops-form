@@ -36,20 +36,25 @@ sidesteps every terminal-paste / line-wrap quirk:
 → https://tifult906-netizen.github.io/shemesh-ops-form/scripts/setup-windows.ps1
 
 If you prefer to paste into an already-open PowerShell (run as Admin),
-use 3 lines — each is a complete statement so terminal line-wrapping
+use 4 lines — each is a complete statement so terminal line-wrapping
 can't break the middle:
 
 ```powershell
 $u='https://tifult906-netizen.github.io/shemesh-ops-form/scripts/setup-windows.ps1'
 [Net.ServicePointManager]::SecurityProtocol='Tls12'
-iex (New-Object Net.WebClient).DownloadString($u)
+$wc=New-Object Net.WebClient; $wc.Encoding=[System.Text.Encoding]::UTF8
+iex $wc.DownloadString($u)
 ```
 
-> Why not `iwr | iex` or one big line? Two gotchas to know about:
+> Three gotchas to know about (all fixed by the above):
 > (1) GitHub Pages serves `.ps1` as `application/octet-stream`, so `iwr`
 > returns the body as `byte[]` and `iex` can't parse bytes. Use
-> `Net.WebClient.DownloadString` which always returns UTF-8 string.
-> (2) The classic Windows console (conhost) splits pasted text at the
+> `Net.WebClient.DownloadString` which returns a string.
+> (2) `DownloadString` defaults to the system codepage (CP1252 on most
+> Windows). If the script has any non-ASCII chars (em-dash, hebrew, etc.)
+> they get mojibaked. Setting `$wc.Encoding=[System.Text.Encoding]::UTF8`
+> fixes this. The script itself is now pure ASCII as defense-in-depth.
+> (3) The classic Windows console (conhost) splits pasted text at the
 > terminal width (~70 cols), breaking long one-liners mid-expression.
 > Multi-line where each line is a complete statement avoids that.
 

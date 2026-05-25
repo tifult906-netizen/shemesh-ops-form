@@ -12,7 +12,7 @@
   Recommended invocation (paste in an elevated PowerShell window):
       powershell -NoProfile -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol='Tls12'; iex (New-Object Net.WebClient).DownloadString('https://tifult906-netizen.github.io/shemesh-ops-form/scripts/setup-windows.ps1')"
 
-  (Don't use `iex (iwr ...).Content` — GitHub Pages serves .ps1 as
+  (Don't use `iex (iwr ...).Content` - GitHub Pages serves .ps1 as
   application/octet-stream so iwr returns byte[] and iex chokes on it.
   Net.WebClient.DownloadString always returns a UTF-8 string.)
 
@@ -22,7 +22,7 @@
 # Force TLS 1.2 (older PS5 may default to 1.0/1.1 which GitHub rejects)
 try { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 } catch {}
 
-# Don't bail on the first non-fatal error — we handle errors per step.
+# Don't bail on the first non-fatal error - we handle errors per step.
 $ErrorActionPreference = "Continue"
 $ProgressPreference    = "SilentlyContinue"   # winget output is noisy
 
@@ -62,7 +62,7 @@ function Install-Winget { param([string]$id, [string[]]$cmdNames, [string]$prett
     ) -NoNewWindow -Wait -PassThru).ExitCode
   if ($exit -eq 0)        { Write-Ok "$pretty installed" }
   elseif ($exit -eq -1978335189) { Write-Skip "$pretty already installed (winget reported no applicable update)" }
-  else                    { Write-Warn "winget exited $exit for $pretty; continuing — re-check at the end" }
+  else                    { Write-Warn "winget exited $exit for $pretty; continuing - re-check at the end" }
   Refresh-Path
 }
 
@@ -92,7 +92,7 @@ function Get-Python {
 
 $PY = Get-Python
 if (-not $PY) {
-  Write-Err "Python isn't visible in this PowerShell session yet. Close this window, open a NEW PowerShell, and re-run the installer — it'll skip the already-done steps."
+  Write-Err "Python isn't visible in this PowerShell session yet. Close this window, open a NEW PowerShell, and re-run the installer - it'll skip the already-done steps."
   exit 1
 }
 Write-Ok "Using Python: $PY"
@@ -128,7 +128,7 @@ if (-not (Test-Path ".venv")) {
 Write-Ok "Python deps installed"
 
 # --- vision model ------------------------------------------------------------
-Write-Step "Pulling local vision model ($ModelTag) — first time downloads ~5 GB"
+Write-Step "Pulling local vision model ($ModelTag) - first time downloads ~5 GB"
 if (-not (Test-Cmd ollama)) { Refresh-Path }
 if (-not (Test-Cmd ollama)) {
   Write-Err "ollama isn't on PATH. Close this PowerShell, open a new one, and re-run the installer."

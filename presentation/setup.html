@@ -167,11 +167,12 @@
           <div class="cmd">
             <code id="oneshot-windows">$u='https://tifult906-netizen.github.io/shemesh-ops-form/scripts/setup-windows.ps1'
 [Net.ServicePointManager]::SecurityProtocol='Tls12'
-iex (New-Object Net.WebClient).DownloadString($u)</code>
+$wc=New-Object Net.WebClient; $wc.Encoding=[System.Text.Encoding]::UTF8
+iex $wc.DownloadString($u)</code>
             <button onclick="copyCmd('oneshot-windows', this)">העתק</button>
           </div>
           <p style="font-size: 12px; color: #777;">
-            כל שורה היא הצהרה שלמה בפני עצמה — גם אם הטרמינל גולש את השורה, היא תעבוד.
+            כל שורה היא הצהרה שלמה בפני עצמה - גם אם הטרמינל גולש את השורה, היא תעבוד.
           </p>
         </div>
       </details>
