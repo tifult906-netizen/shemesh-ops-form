@@ -134,11 +134,23 @@
        והדבק את הפקודה הבאה. הסקריפט יתקין Python + Git + Ollama, יוריד את הכלי, ויפעיל אותו.</p>
 
     <div data-os-block="windows">
+      <p style="font-size: 13px; color: #555;"><strong>חשוב:</strong> פתח PowerShell <strong>כמנהל</strong> (לחיצה ימנית על תפריט התחל → "Windows PowerShell (Admin)" או "Terminal (Admin)").</p>
       <div class="cmd">
-        <code id="oneshot-windows">powershell -ExecutionPolicy Bypass -Command "iwr https://tifult906-netizen.github.io/shemesh-ops-form/scripts/setup-windows.ps1 -OutFile $env:TEMP\shemesh-setup.ps1; &amp; $env:TEMP\shemesh-setup.ps1"</code>
+        <code id="oneshot-windows">powershell -NoProfile -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol='Tls12'; iex (iwr 'https://tifult906-netizen.github.io/shemesh-ops-form/scripts/setup-windows.ps1' -UseBasicParsing).Content"</code>
         <button onclick="copyCmd('oneshot-windows', this)">העתק</button>
       </div>
-      <p>או הורד את הסקריפט ידנית: <a href="../scripts/setup-windows.ps1" download>setup-windows.ps1</a> (לחיצה ימנית → Run with PowerShell)</p>
+      <p style="font-size: 13px;">אם הפקודה נכשלת מ-PowerShell רגיל — הורד את הסקריפט ידנית:
+        <a href="../scripts/setup-windows.ps1" download>setup-windows.ps1</a>
+        ולחץ עליו לחיצה ימנית → <strong>Run with PowerShell</strong>.</p>
+      <details style="margin-top: 6px">
+        <summary style="font-size: 12px;">שגיאות נפוצות וכיצד לפתור</summary>
+        <div style="font-size: 12px; line-height: 1.6;">
+          <p><strong>"winget לא מזוהה"</strong> — Windows שלך ישן. עדכן את "App Installer" מ-Microsoft Store, או השתמש במסלול הידני למטה.</p>
+          <p><strong>"running scripts is disabled"</strong> — סגור את החלון ופתח PowerShell <strong>כמנהל</strong>, אז הרץ שוב.</p>
+          <p><strong>"python is not recognized" אחרי שלב 1</strong> — סגור את PowerShell ופתח חלון חדש (כדי לרענן PATH), אז הרץ את הסקריפט שוב — הוא יזהה ש-Python כבר מותקן וידלג קדימה.</p>
+          <p><strong>שגיאת TLS / קישוריות</strong> — וודא חיבור אינטרנט יציב; הפעלת VPN לפעמים חוסמת.</p>
+        </div>
+      </details>
     </div>
 
     <div data-os-block="mac" class="hidden">
