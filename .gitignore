@@ -19,8 +19,3 @@ demo_form_*.png
 demo_form_output.pdf
 demo_output*.json
 demo_submissions.db
-
-# The real insurance-companies directory is your private commercial data.
-# Keep it out of the repo; loaded via SHEMESH_INSURANCE_CSV env var or by
-# placing your own insurance_companies.csv next to insurance_companies.example.csv.
-insurance_companies.csv

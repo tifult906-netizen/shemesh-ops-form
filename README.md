@@ -63,9 +63,9 @@ Configuration env vars:
 - `SHEMESH_DB` — SQLite path (default `~/.shemesh-ops/submissions.db`)
 - `SHEMESH_SESSION_ROOT` — upload session dir (default `~/.shemesh-ops/sessions`)
 - `SHEMESH_FONT_PATH`, `SHEMESH_FONT_BOLD_PATH` — Hebrew font TTF paths
-- `SHEMESH_INSURANCE_CSV` — path to your company × email lookup CSV
-  (see `insurance_companies.example.csv` for the schema; the real list of
-  insurance-company support inboxes is intentionally **not** committed)
+- `SHEMESH_INSURANCE_CSV` — override path to the company × email lookup CSV
+  (defaults to `insurance_companies.csv` at the repo root; the shipped one
+  contains public OSINT addresses for 18 Israeli insurance companies)
 - `OLLAMA_HOST` — Ollama daemon URL (default `http://localhost:11434`)
 
 ### CLI
