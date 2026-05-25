@@ -16,36 +16,9 @@
 </div>
 {% endif %}
 
-{% if routing %}
 <div class="card">
-  <h2>נמענים מומלצים לשליחת הטופס</h2>
-  <p class="muted">על פי החברה וסוג הקופה של כל פעולה — מתוך מאגר הכתובות של המערכת.</p>
-  {% set subj = "טופס תפעול – " ~ (form.cover.client_first_name or '') ~ " " ~ (form.cover.client_last_name or '') ~ " – " ~ (form.cover.form_date or '') %}
-  {% set body = "שלום,%0D%0A%0D%0Aמצורף טופס תפעול עבור הלקוח." ~ "%0D%0A%0D%0A(הטופס המלא מצורף בנפרד - נא הורדה ידנית מקובץ ה-PDF)." %}
-  {% for r in routing %}
-    <div style="margin-bottom: 10px">
-      <strong>{{ r.company }}</strong>
-      <span class="muted">({{ r.product_type or '–' }})</span>
-      {% if r.emails %}
-        <ul style="margin: 4px 0 0 0">
-          {% for email in r.emails %}
-            <li>
-              <a href="mailto:{{ email }}?subject={{ subj|urlencode }}&body={{ body }}">{{ email }}</a>
-              <a href="mailto:{{ email }}?subject={{ subj|urlencode }}&body={{ body }}" class="btn secondary" style="padding: 2px 8px; font-size: 11px; margin-right:8px">פתח במייל ✉</a>
-            </li>
-          {% endfor %}
-        </ul>
-        <p class="muted" style="margin: 4px 0 0 0; font-size: 11px">⚠ דפדפנים לא מאפשרים צירוף PDF אוטומטי — הורד את ה-PDF ידנית וצרף למייל</p>
-      {% else %}
-        <span class="muted">— לא נמצאו כתובות במאגר</span>
-      {% endif %}
-    </div>
-  {% endfor %}
-</div>
-{% endif %}
-
-<div class="card">
-  <h2>4. תצוגה מקדימה</h2>
+  <h2>4. תצוגה מקדימה והורדה</h2>
+  <p class="muted">סקור את הטופס. הוא נשמר אצלך לשימוש פנימי — מילוי טפסי המשיכה של החברות יוסף בהמשך.</p>
 
   <div class="preview-pages">
     {% for i in range(1, page_count + 1) %}

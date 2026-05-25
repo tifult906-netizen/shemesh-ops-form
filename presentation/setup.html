@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>שמש – התקנה</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f6f7f9; color: #222; direction: rtl;
+    line-height: 1.5;
+  }
+  header {
+    background: #1a4a8c; color: white; padding: 18px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  header h1 { margin: 0; font-size: 22px; font-weight: 600; }
+  header a { color: #cfd8dc; text-decoration: none; font-size: 14px; }
+  .wrapper { max-width: 900px; margin: 0 auto; padding: 24px; }
+  .intro { background: white; border: 1px solid #d8dde3; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+  .intro h2 { color: #1a4a8c; margin-top: 0; }
+  .os-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .os-tab {
+    padding: 10px 18px; border-radius: 6px; cursor: pointer;
+    background: #eef2f6; border: 2px solid transparent; font-size: 14px;
+    user-select: none;
+  }
+  .os-tab.active { background: #1a4a8c; color: white; border-color: #143b70; }
+  .os-tab.recommended::after { content: " ⭐"; }
+  .one-shot {
+    background: #fff8e1; border-right: 4px solid #f9a825;
+    border-radius: 4px; padding: 16px 20px; margin-bottom: 24px;
+  }
+  .one-shot h3 { margin-top: 0; color: #1a4a8c; }
+  .one-shot p { margin: 6px 0; font-size: 13px; color: #555; }
+  .step {
+    background: white; border: 1px solid #d8dde3; border-radius: 8px;
+    padding: 18px 22px; margin-bottom: 12px;
+    transition: all 0.2s;
+  }
+  .step.done { background: #f1f8e9; border-color: #c5e1a5; }
+  .step header {
+    background: none; color: #1a4a8c; padding: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .step .num {
+    display: inline-block; width: 32px; height: 32px;
+    background: #1a4a8c; color: white; border-radius: 50%;
+    text-align: center; line-height: 32px; font-weight: bold; margin-left: 10px;
+  }
+  .step.done .num { background: #2e7d32; }
+  .step.done .num::before { content: "✓"; }
+  .step.done .num span { display: none; }
+  .step h3 { margin: 0; font-size: 16px; color: #1a4a8c; display: inline; }
+  .step .body { margin-top: 12px; }
+  .step .body p { font-size: 13px; color: #555; margin: 6px 0; }
+  .cmd {
+    display: flex; gap: 8px; align-items: stretch;
+    background: #f5f5f5; border: 1px solid #ccc; border-radius: 4px;
+    padding: 0; overflow: hidden; margin: 8px 0;
+    direction: ltr;
+  }
+  .cmd code {
+    flex: 1; padding: 10px 12px; font-family: Consolas, monospace;
+    font-size: 13px; white-space: pre-wrap; word-break: break-all;
+  }
+  .cmd button {
+    padding: 0 14px; background: #6c757d; color: white;
+    border: none; cursor: pointer; font-size: 12px;
+    border-right: 1px solid #555;
+  }
+  .cmd button:hover { background: #5a6268; }
+  .cmd button.copied { background: #2e7d32; }
+  .btn {
+    display: inline-block; padding: 8px 16px;
+    background: #1a4a8c; color: white; text-decoration: none;
+    border-radius: 4px; font-size: 14px; border: none; cursor: pointer;
+    margin: 4px 4px 4px 0; font-family: inherit;
+  }
+  .btn:hover { background: #143b70; }
+  .btn.secondary { background: #6c757d; }
+  .btn.success { background: #2e7d32; }
+  .done-btn {
+    margin-top: 10px; padding: 6px 14px; background: #2e7d32; color: white;
+    border: none; border-radius: 4px; cursor: pointer; font-size: 13px;
+  }
+  .done-btn.undo { background: #6c757d; }
+  .progress {
+    height: 8px; background: #eef2f6; border-radius: 4px;
+    margin-bottom: 24px; overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%; background: #2e7d32; width: 0%;
+    transition: width 0.3s;
+  }
+  .hidden { display: none; }
+  .badge { display: inline-block; padding: 2px 8px; background: #eef2f6; border-radius: 10px; font-size: 11px; color: #555; }
+  details summary { cursor: pointer; color: #1a4a8c; font-size: 13px; padding: 6px 0; }
+  details > div { padding: 8px 0; font-size: 13px; }
+  .footer { text-align: center; padding: 20px; color: #999; font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>שמש – התקנה</h1>
+  <a href="index.html">← חזור למצגת</a>
+</header>
+
+<div class="wrapper">
+
+  <div class="intro">
+    <h2>התקנה ראשונית</h2>
+    <p>הכלי דורש כמה תוכנות חינמיות (Python, Git, Ollama). יש שני מסלולים:</p>
+    <ul>
+      <li><strong>מסלול מהיר:</strong> סקריפט אחד שמתקין הכל אוטומטית (מומלץ)</li>
+      <li><strong>מסלול ידני:</strong> שלב אחר שלב עם כפתורי הורדה ופקודות להעתקה</li>
+    </ul>
+    <p>זוהינו אוטומטית את מערכת ההפעלה שלך — אפשר לעבור בין הלשוניות.</p>
+
+    <div class="os-tabs">
+      <div class="os-tab" data-os="windows">Windows</div>
+      <div class="os-tab" data-os="mac">macOS</div>
+      <div class="os-tab" data-os="linux">Linux</div>
+    </div>
+  </div>
+
+  <!-- ============== Quick path ============== -->
+  <div class="one-shot">
+    <h3>⚡ מסלול מהיר — סקריפט אחד שמתקין הכל</h3>
+    <p>פתח <strong data-os-text="windows">PowerShell</strong><strong data-os-text="mac" class="hidden">Terminal</strong><strong data-os-text="linux" class="hidden">Terminal</strong>
+       והדבק את הפקודה הבאה. הסקריפט יתקין Python + Git + Ollama, יוריד את הכלי, ויפעיל אותו.</p>
+
+    <div data-os-block="windows">
+      <div class="cmd">
+        <code id="oneshot-windows">powershell -ExecutionPolicy Bypass -Command "iwr https://tifult906-netizen.github.io/shemesh-ops-form/scripts/setup-windows.ps1 -OutFile $env:TEMP\shemesh-setup.ps1; &amp; $env:TEMP\shemesh-setup.ps1"</code>
+        <button onclick="copyCmd('oneshot-windows', this)">העתק</button>
+      </div>
+      <p>או הורד את הסקריפט ידנית: <a href="../scripts/setup-windows.ps1" download>setup-windows.ps1</a> (לחיצה ימנית → Run with PowerShell)</p>
+    </div>
+
+    <div data-os-block="mac" class="hidden">
+      <div class="cmd">
+        <code id="oneshot-mac">curl -fsSL https://tifult906-netizen.github.io/shemesh-ops-form/scripts/setup-mac.sh | bash</code>
+        <button onclick="copyCmd('oneshot-mac', this)">העתק</button>
+      </div>
+      <p>או הורד את הסקריפט ידנית: <a href="../scripts/setup-mac.sh" download>setup-mac.sh</a></p>
+    </div>
+
+    <div data-os-block="linux" class="hidden">
+      <div class="cmd">
+        <code id="oneshot-linux">curl -fsSL https://tifult906-netizen.github.io/shemesh-ops-form/scripts/setup-mac.sh | bash</code>
+        <button onclick="copyCmd('oneshot-linux', this)">העתק</button>
+      </div>
+      <p>(הסקריפט עובד גם על Linux — בודק apt / dnf / pacman אוטומטית)</p>
+    </div>
+  </div>
+
+  <h2 style="color: #1a4a8c; margin-top: 32px;">או — מסלול ידני, שלב אחר שלב</h2>
+  <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
+
+  <!-- Step 1: Python -->
+  <div class="step" data-step="1">
+    <header><div><span class="num"><span>1</span></span><h3>התקן Python 3.11 ומעלה</h3></div></header>
+    <div class="body">
+      <p>שפת התכנות שעליה הכלי בנוי. מתקין פעם אחת ועובד לתמיד.</p>
+
+      <div data-os-block="windows">
+        <a class="btn" href="https://www.python.org/downloads/" target="_blank">הורד מ-python.org →</a>
+        <span class="badge">חשוב: סמן "Add Python to PATH" במסך הראשון של ההתקנה</span>
+        <details><summary>או דרך winget (אם יש לך Windows 11 / 10 מעודכן)</summary>
+          <div><div class="cmd"><code id="cmd-py-winget">winget install Python.Python.3.11</code><button onclick="copyCmd('cmd-py-winget', this)">העתק</button></div></div>
+        </details>
+      </div>
+
+      <div data-os-block="mac" class="hidden">
+        <a class="btn" href="https://www.python.org/downloads/macos/" target="_blank">הורד מ-python.org →</a>
+        <details><summary>או דרך Homebrew</summary>
+          <div><div class="cmd"><code id="cmd-py-brew">brew install python@3.11</code><button onclick="copyCmd('cmd-py-brew', this)">העתק</button></div></div>
+        </details>
+      </div>
+
+      <div data-os-block="linux" class="hidden">
+        <div class="cmd"><code id="cmd-py-apt">sudo apt-get install -y python3 python3-venv python3-pip</code><button onclick="copyCmd('cmd-py-apt', this)">העתק</button></div>
+      </div>
+
+      <button class="done-btn" onclick="markDone(1)">סיימתי את שלב 1 ✓</button>
+    </div>
+  </div>
+
+  <!-- Step 2: Git -->
+  <div class="step" data-step="2">
+    <header><div><span class="num"><span>2</span></span><h3>התקן Git</h3></div></header>
+    <div class="body">
+      <p>כדי להוריד את קוד הכלי מ-GitHub.</p>
+
+      <div data-os-block="windows">
+        <a class="btn" href="https://git-scm.com/download/win" target="_blank">הורד Git for Windows →</a>
+        <details><summary>או דרך winget</summary>
+          <div><div class="cmd"><code id="cmd-git-winget">winget install Git.Git</code><button onclick="copyCmd('cmd-git-winget', this)">העתק</button></div></div>
+        </details>
+      </div>
+
+      <div data-os-block="mac" class="hidden">
+        <a class="btn" href="https://git-scm.com/download/mac" target="_blank">הורד Git for macOS →</a>
+        <details><summary>או דרך Homebrew</summary>
+          <div><div class="cmd"><code id="cmd-git-brew">brew install git</code><button onclick="copyCmd('cmd-git-brew', this)">העתק</button></div></div>
+        </details>
+      </div>
+
+      <div data-os-block="linux" class="hidden">
+        <div class="cmd"><code id="cmd-git-apt">sudo apt-get install -y git</code><button onclick="copyCmd('cmd-git-apt', this)">העתק</button></div>
+      </div>
+
+      <button class="done-btn" onclick="markDone(2)">סיימתי את שלב 2 ✓</button>
+    </div>
+  </div>
+
+  <!-- Step 3: Ollama -->
+  <div class="step" data-step="3">
+    <header><div><span class="num"><span>3</span></span><h3>התקן Ollama</h3></div></header>
+    <div class="body">
+      <p>הריצה המקומית של מודל הראייה (קורא את ה-PDFs בעברית). פועל ברקע.</p>
+
+      <div data-os-block="windows">
+        <a class="btn" href="https://ollama.com/download/windows" target="_blank">הורד Ollama for Windows →</a>
+        <details><summary>או דרך winget</summary>
+          <div><div class="cmd"><code id="cmd-ol-winget">winget install Ollama.Ollama</code><button onclick="copyCmd('cmd-ol-winget', this)">העתק</button></div></div>
+        </details>
+      </div>
+
+      <div data-os-block="mac" class="hidden">
+        <a class="btn" href="https://ollama.com/download/mac" target="_blank">הורד Ollama for macOS →</a>
+        <details><summary>או דרך Homebrew</summary>
+          <div><div class="cmd"><code id="cmd-ol-brew">brew install ollama</code><button onclick="copyCmd('cmd-ol-brew', this)">העתק</button></div></div>
+        </details>
+      </div>
+
+      <div data-os-block="linux" class="hidden">
+        <div class="cmd"><code id="cmd-ol-linux">curl -fsSL https://ollama.com/install.sh | sh</code><button onclick="copyCmd('cmd-ol-linux', this)">העתק</button></div>
+      </div>
+
+      <button class="done-btn" onclick="markDone(3)">סיימתי את שלב 3 ✓</button>
+    </div>
+  </div>
+
+  <!-- Step 4: Pull model -->
+  <div class="step" data-step="4">
+    <header><div><span class="num"><span>4</span></span><h3>הורד את מודל הראייה (~5GB, פעם אחת)</h3></div></header>
+    <div class="body">
+      <p>פתח Terminal / PowerShell והרץ:</p>
+      <div class="cmd"><code id="cmd-pull">ollama pull qwen2.5vl:7b</code><button onclick="copyCmd('cmd-pull', this)">העתק</button></div>
+      <p><span class="badge">ההורדה לוקחת בין 5 ל-15 דקות תלוי באינטרנט</span></p>
+      <button class="done-btn" onclick="markDone(4)">סיימתי את שלב 4 ✓</button>
+    </div>
+  </div>
+
+  <!-- Step 5: Clone repo -->
+  <div class="step" data-step="5">
+    <header><div><span class="num"><span>5</span></span><h3>הורד את הכלי</h3></div></header>
+    <div class="body">
+      <p>פתח Terminal / PowerShell בתיקייה שבה אתה רוצה שהכלי יהיה (לדוגמה ב-Documents) והרץ:</p>
+      <div class="cmd"><code id="cmd-clone">git clone https://github.com/tifult906-netizen/shemesh-ops-form</code><button onclick="copyCmd('cmd-clone', this)">העתק</button></div>
+      <button class="done-btn" onclick="markDone(5)">סיימתי את שלב 5 ✓</button>
+    </div>
+  </div>
+
+  <!-- Step 6: Install Python deps -->
+  <div class="step" data-step="6">
+    <header><div><span class="num"><span>6</span></span><h3>התקן את חבילות הפייתון</h3></div></header>
+    <div class="body">
+      <p>היכנס לתיקיית הכלי והרץ:</p>
+      <div data-os-block="windows">
+        <div class="cmd"><code id="cmd-deps-win">cd shemesh-ops-form
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+pip install -e .</code><button onclick="copyCmd('cmd-deps-win', this)">העתק</button></div>
+      </div>
+      <div data-os-block="mac" class="hidden">
+        <div class="cmd"><code id="cmd-deps-mac">cd shemesh-ops-form
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+pip install -e .</code><button onclick="copyCmd('cmd-deps-mac', this)">העתק</button></div>
+      </div>
+      <div data-os-block="linux" class="hidden">
+        <div class="cmd"><code id="cmd-deps-linux">cd shemesh-ops-form
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+pip install -e .</code><button onclick="copyCmd('cmd-deps-linux', this)">העתק</button></div>
+      </div>
+      <button class="done-btn" onclick="markDone(6)">סיימתי את שלב 6 ✓</button>
+    </div>
+  </div>
+
+  <!-- Step 7: Run -->
+  <div class="step" data-step="7">
+    <header><div><span class="num"><span>7</span></span><h3>הפעל את הכלי</h3></div></header>
+    <div class="body">
+      <p>כשהווירטואל-אנב פעיל (.venv), הרץ:</p>
+      <div data-os-block="windows">
+        <div class="cmd"><code id="cmd-run-win">$env:SHEMESH_VISION="ollama"
+python -m shemesh_ops.web</code><button onclick="copyCmd('cmd-run-win', this)">העתק</button></div>
+      </div>
+      <div data-os-block="mac" class="hidden">
+        <div class="cmd"><code id="cmd-run-mac">export SHEMESH_VISION=ollama
+python -m shemesh_ops.web</code><button onclick="copyCmd('cmd-run-mac', this)">העתק</button></div>
+      </div>
+      <div data-os-block="linux" class="hidden">
+        <div class="cmd"><code id="cmd-run-linux">export SHEMESH_VISION=ollama
+python -m shemesh_ops.web</code><button onclick="copyCmd('cmd-run-linux', this)">העתק</button></div>
+      </div>
+      <p>הדפדפן ייפתח אוטומטית בכתובת: <a href="http://127.0.0.1:8000" target="_blank">http://127.0.0.1:8000</a></p>
+      <button class="done-btn" onclick="markDone(7)">סיימתי את שלב 7 ✓</button>
+    </div>
+  </div>
+
+  <div id="all-done" class="hidden" style="margin: 32px 0; padding: 20px; background: #e8f5e9; border-right: 4px solid #2e7d32; border-radius: 4px;">
+    <h2 style="color: #2e7d32; margin-top: 0;">🎉 ההתקנה הושלמה!</h2>
+    <p>הכלי פועל ב-<a href="http://127.0.0.1:8000" target="_blank">http://127.0.0.1:8000</a>.
+       כשתרצה להפעיל אותו שוב בעתיד, פשוט הרץ את הפקודה משלב 7 מתוך תיקיית הכלי.</p>
+    <p><a class="btn success" href="index.html">חזור למצגת לראות איך להשתמש →</a></p>
+  </div>
+</div>
+
+<div class="footer">
+  שמש · <a href="https://github.com/tifult906-netizen/shemesh-ops-form" style="color: #999;">קוד מקור</a>
+</div>
+
+<script>
+// --- OS detection ----------------------------------------------------------
+function detectOS() {
+  const p = navigator.platform.toLowerCase();
+  const ua = navigator.userAgent.toLowerCase();
+  if (p.includes('win') || ua.includes('windows')) return 'windows';
+  if (p.includes('mac') || ua.includes('macintosh')) return 'mac';
+  if (p.includes('linux') || ua.includes('linux')) return 'linux';
+  return 'windows';
+}
+
+function setOS(os) {
+  // Tabs
+  document.querySelectorAll('.os-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.os === os);
+  });
+  // Per-os blocks
+  document.querySelectorAll('[data-os-block]').forEach(b => {
+    b.classList.toggle('hidden', b.dataset.osBlock !== os);
+  });
+  document.querySelectorAll('[data-os-text]').forEach(b => {
+    b.classList.toggle('hidden', b.dataset.osText !== os);
+  });
+  localStorage.setItem('shemesh-os', os);
+}
+
+document.querySelectorAll('.os-tab').forEach(tab => {
+  tab.addEventListener('click', () => setOS(tab.dataset.os));
+});
+
+const detected = detectOS();
+document.querySelector(`.os-tab[data-os="${detected}"]`)?.classList.add('recommended');
+setOS(localStorage.getItem('shemesh-os') || detected);
+
+// --- Copy to clipboard -----------------------------------------------------
+function copyCmd(id, btn) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'הועתק ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+// --- Step progress ---------------------------------------------------------
+const TOTAL_STEPS = 7;
+
+function loadDone() {
+  try { return JSON.parse(localStorage.getItem('shemesh-done') || '[]'); } catch { return []; }
+}
+function saveDone(arr) { localStorage.setItem('shemesh-done', JSON.stringify(arr)); }
+
+function refresh() {
+  const done = loadDone();
+  document.querySelectorAll('.step').forEach(s => {
+    const n = parseInt(s.dataset.step);
+    const isDone = done.includes(n);
+    s.classList.toggle('done', isDone);
+    const btn = s.querySelector('.done-btn');
+    if (btn) {
+      btn.textContent = isDone ? 'בטל סימון ↺' : `סיימתי את שלב ${n} ✓`;
+      btn.classList.toggle('undo', isDone);
+    }
+  });
+  const pct = Math.round((done.length / TOTAL_STEPS) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('all-done').classList.toggle('hidden', done.length < TOTAL_STEPS);
+}
+
+function markDone(n) {
+  let done = loadDone();
+  if (done.includes(n)) done = done.filter(x => x !== n);
+  else done.push(n);
+  saveDone(done);
+  refresh();
+  if (loadDone().length === TOTAL_STEPS) {
+    document.getElementById('all-done').scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+refresh();
+</script>
+</body>
+</html>

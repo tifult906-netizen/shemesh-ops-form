@@ -1,8 +1,8 @@
 # Shemesh – טופס תפעול
 
-Hebrew-RTL web tool for Shemesh sales reps to generate pension/insurance **withdrawal operation forms** (טופס תפעול) from a client's source documents.
+Hebrew-RTL web tool that turns a client's source documents into a filled-in **internal operation form** (טופס תפעול) for the sales rep's own records.
 
-The rep uploads 5 PDFs + 2 ID photos. The system extracts everything (numeric fields deterministically, Hebrew labels via a local vision model), runs the relevant tax + document-checklist rules, and produces a filled Hebrew RTL PDF matching the standard template — ready to send to the destination insurer.
+The rep uploads 5 PDFs + 2 ID photos. The system extracts everything (numeric fields deterministically, Hebrew labels via a local vision model), runs the relevant tax + document-checklist rules, and produces a Hebrew RTL PDF matching the standard internal template. The actual per-company withdrawal forms are a future addition — for now this tool's only job is to deliver that one summary PDF to the rep.
 
 ## What it does end-to-end
 
@@ -14,16 +14,42 @@ The rep uploads 5 PDFs + 2 ID photos. The system extracts everything (numeric fi
    - **Tax mode**: הוני bucket auto-locks to פטור; קה"ש ≥6 yrs → exempt; <6 yrs → 35% (with cross-fund vintage-override surface).
    - **Required docs**: deterministic checklist by money type, client age, employer 161/release status, Altshuler/Harel 2-year rule.
 6. **Model review** — deterministic checks (ID consistency, dates, amounts, kupa-exists) + optional LLM sanity-check on the rendered form. Errors block save; warnings need rep ack.
-7. **Render** — Hebrew RTL PDF matching the reference layout (pymupdf direct draw + python-bidi).
-8. **Save + route** — stored in SQLite; UI suggests the right insurer inbox(es) per פעולה from `insurance_companies.csv` (18 companies × per-product mapping).
+7. **Render + save** — Hebrew RTL PDF matching the internal layout (pymupdf direct draw + python-bidi), stored in SQLite alongside the source ClientPicture.
+
+> **Out of scope for now:** filling the per-company withdrawal forms (e.g. מגדל's
+> own pidyon form, הראל's, etc.). That's a separate phase. The
+> `insurance_companies.csv` mapping ships with this repo as input for that
+> future work, but the current pipeline doesn't email or auto-submit anything.
 
 ## Install
 
+**For non-developers (recommended):** open the interactive setup page —
+detects your OS, gives you a one-shot installer command or a step-by-step
+checklist with copy-able commands and direct download links:
+
+→ **https://tifult906-netizen.github.io/shemesh-ops-form/presentation/setup.html**
+
+**One-shot installer** (Windows PowerShell — installs Python, Git, Ollama,
+clones the repo, installs deps, pulls the vision model, starts the app):
+
+```powershell
+iwr https://tifult906-netizen.github.io/shemesh-ops-form/scripts/setup-windows.ps1 | iex
+```
+
+macOS / Linux equivalent:
+
 ```bash
-git clone <repo> shemesh-ops-form
+curl -fsSL https://tifult906-netizen.github.io/shemesh-ops-form/scripts/setup-mac.sh | bash
+```
+
+**Manual install** (if you already have Python 3.11+):
+
+```bash
+git clone https://github.com/tifult906-netizen/shemesh-ops-form
 cd shemesh-ops-form
 python -m venv .venv
-.venv\Scripts\activate                # PowerShell
+.venv\Scripts\activate                # Windows PowerShell
+# or: source .venv/bin/activate       # macOS/Linux
 pip install -r requirements.txt
 pip install -e .
 ```

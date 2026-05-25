@@ -118,7 +118,7 @@
       <li><strong>העלאת מסמכים</strong> — גוררים את כל הקבצים פנימה; המערכת בודקת גודל, סוג, חתימת קובץ</li>
       <li><strong>סקירת מידע</strong> — וודאו את הנתונים שחולצו; כל שדה ניתן לעריכה</li>
       <li><strong>הגדרת פעולות</strong> — הוסיפו עד 6 פעולות משיכה; חברה, סוג, קופה, מיסוי, מעסיקים</li>
-      <li><strong>תצוגה מקדימה + שמירה</strong> — סורקים את התוצאה, מקבלים את כתובות המייל לשליחה</li>
+      <li><strong>תצוגה מקדימה + הורדה</strong> — סוקרים את התוצאה ומורידים PDF לשימוש פנימי</li>
     </ol>
     <div class="callout info">
       ניווט בראש הדף מאפשר לחזור ולתקן בכל שלב. "התחל מחדש" מוחק הכל אם רוצים לעבוד עם לקוח אחר.
@@ -199,17 +199,18 @@
 
   <section>
     <h2>איך מתקינים?</h2>
-    <pre><code class="hljs bash">git clone https://github.com/tifult906-netizen/shemesh-ops-form
-cd shemesh-ops-form
-python -m venv .venv
-.venv\Scripts\activate           # Windows
-pip install -r requirements.txt
-pip install -e .
-
-# הרצה
-python -m shemesh_ops.web
-# → פתח http://127.0.0.1:8000</code></pre>
-    <div class="callout info">דרישות: Python 3.11+, פונט עברי TTF (אריאל מותקן ב-Windows). ללא תלות בינארית.</div>
+    <p style="font-size: 0.9em; margin-bottom: 24px;">
+      יש דף התקנה אינטראקטיבי שמזהה את מערכת ההפעלה ומספק כפתורי הורדה + פקודות להעתקה:
+    </p>
+    <p style="text-align: center;">
+      <a href="setup.html" style="display: inline-block; padding: 16px 30px; background: #2e7d32; color: white; text-decoration: none; border-radius: 6px; font-size: 1.1em;">
+        ⬇ פתח את דף ההתקנה האינטראקטיבי
+      </a>
+    </p>
+    <div class="callout info" style="margin-top: 30px;">
+      בקיצור: סקריפט אחד שמוריד את Python + Git + Ollama, מוריד את הכלי, ומפעיל אותו.
+      טוב לרוב המשתמשים. אם משהו לא עובד — יש גם מסלול ידני שלב-אחר-שלב באותו דף.
+    </div>
   </section>
 
   <section>
