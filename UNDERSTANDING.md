@@ -327,8 +327,8 @@ Notes:
 
 Bonus: the CSV maps **(company × סוג קופה) → email address** — so once we know the company and the product type, we know exactly which inbox the form should be sent to. This is a free automation hook for "Step 5: deliver" later.
 
-### Reps (7) — for the שם נציג dropdown
-אוהד, נדב, יוני, שי, דורון, מאי, אגם
+### Reps — for the שם נציג field
+Free-text input; the rep types their name.
 
 ### Operation scope — **withdrawal only**, money type is תגמולים OR פיצויים (see §2)
 

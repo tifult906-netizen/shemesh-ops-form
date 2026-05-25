@@ -24,7 +24,7 @@ def _picture() -> ClientPicture:
 def _form() -> OperationForm:
     cover = OperationFormCover(
         form_date=date(2026, 3, 15),
-        rep_name="אוהד",
+        rep_name="נציג לדוגמה",
         client_first_name="ישראל",
         client_last_name="ישראלי",
         client_id="999999999",
@@ -47,7 +47,7 @@ def test_save_and_get(tmp_path):
     row = store.get(sid)
     assert row is not None
     assert row["client_id"] == "999999999"
-    assert row["rep_name"] == "אוהד"
+    assert row["rep_name"] == "נציג לדוגמה"
     assert row["status"] == "draft"
     assert row["pdf_path"].endswith("form.pdf")
 
