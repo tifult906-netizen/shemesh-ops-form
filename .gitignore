@@ -1,0 +1,21 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+.DS_Store
+
+# Local extraction / demo artifacts — regenerable
+maslaka_p*.png
+מסלקה_extract.txt
+bl_extract.txt
+rules_extracted.txt
+bank_render.png
+test_*.pdf
+test_*.png
+ui_preview.pdf
+demo_form_*.png
+demo_form_output.pdf
+demo_output*.json
+demo_submissions.db

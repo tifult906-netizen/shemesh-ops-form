@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shemesh-ops"
+version = "0.1.0"
+description = "Shemesh sales-rep operation form (טופס תפעול) generator"
+requires-python = ">=3.11"
+dependencies = [
+    "pdfplumber>=0.11",
+    "pymupdf>=1.24",
+    "pydantic>=2.7",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
