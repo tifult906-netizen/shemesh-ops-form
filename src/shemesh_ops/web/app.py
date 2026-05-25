@@ -525,15 +525,13 @@ def _render_to_session_pdf(s: Session) -> Path:
 
 @app.get("/preview/{sid}", response_class=HTMLResponse)
 async def preview_page(request: Request, sid: str) -> HTMLResponse:
-    import fitz
+    from ..vision.base import pdf_page_count
     s = _get_session_or_404(sid)
     pic = _ensure_picture(s)
     form = _ensure_form(s)
     pdf_path = _render_to_session_pdf(s)
     review = review_form(pic, form, str(pdf_path), get_vision())
-
-    with fitz.open(pdf_path) as doc:
-        page_count = len(doc)
+    page_count = pdf_page_count(pdf_path)
 
     # Build email-routing suggestions per operation
     routing: list[dict] = []
@@ -573,32 +571,29 @@ async def preview_pdf(sid: str) -> FileResponse:
 async def preview_page_png(sid: str, n: int) -> FileResponse:
     """Render the Nth page of the form PDF as PNG — fallback for browsers
     that don't render embedded PDFs (notably headless Chromium and some
-    mobile browsers).
-    """
-    import fitz
+    mobile browsers)."""
+    from ..vision.base import render_pdf_pages, pdf_page_count
     s = _get_session_or_404(sid)
     if not s.pdf_path or not s.pdf_path.exists():
         _render_to_session_pdf(s)
     png_path = s.upload_dir / f"page-{n}.png"
-    # Re-render if PDF is newer than cached PNG
     if (not png_path.exists()
             or png_path.stat().st_mtime < s.pdf_path.stat().st_mtime):
-        with fitz.open(s.pdf_path) as doc:
-            if n < 1 or n > len(doc):
-                raise HTTPException(status_code=404, detail=f"דף {n} לא קיים בטופס")
-            pix = doc[n - 1].get_pixmap(dpi=120)
-            pix.save(str(png_path))
+        total = pdf_page_count(s.pdf_path)
+        if n < 1 or n > total:
+            raise HTTPException(status_code=404, detail=f"דף {n} לא קיים בטופס")
+        png_bytes = render_pdf_pages(s.pdf_path, [n - 1], dpi=120)[0]
+        png_path.write_bytes(png_bytes)
     return FileResponse(png_path, media_type="image/png")
 
 
 @app.get("/preview/{sid}/page-count")
 async def preview_page_count(sid: str) -> dict:
-    import fitz
+    from ..vision.base import pdf_page_count
     s = _get_session_or_404(sid)
     if not s.pdf_path or not s.pdf_path.exists():
         _render_to_session_pdf(s)
-    with fitz.open(s.pdf_path) as doc:
-        return {"pages": len(doc)}
+    return {"pages": pdf_page_count(s.pdf_path)}
 
 
 @app.post("/preview/{sid}/save")

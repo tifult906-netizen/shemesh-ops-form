@@ -245,6 +245,5 @@ def fill_bl_labels(history: BLEmploymentHistory, pdf_path: Path | str, vision: V
 
 
 def _count_pages(pdf_path: Path | str) -> int:
-    import fitz
-    with fitz.open(str(pdf_path)) as doc:
-        return len(doc)
+    from .base import pdf_page_count
+    return pdf_page_count(pdf_path)

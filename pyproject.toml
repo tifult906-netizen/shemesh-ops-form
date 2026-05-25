@@ -9,7 +9,7 @@ description = "Shemesh sales-rep operation form (טופס תפעול) generator"
 requires-python = ">=3.11"
 dependencies = [
     "pdfplumber>=0.11",
-    "pymupdf>=1.24",
+    "reportlab>=4.0",
     "pydantic>=2.7",
 ]
 
