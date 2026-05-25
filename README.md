@@ -29,12 +29,18 @@ checklist with copy-able commands and direct download links:
 
 → **https://tifult906-netizen.github.io/shemesh-ops-form/presentation/setup.html**
 
-**One-shot installer** (Windows PowerShell — installs Python, Git, Ollama,
-clones the repo, installs deps, pulls the vision model, starts the app):
+**One-shot installer** (Windows — open PowerShell **as Administrator** and
+paste this; installs Python, Git, Ollama, clones the repo, installs deps,
+pulls the vision model, starts the app):
 
 ```powershell
-iwr https://tifult906-netizen.github.io/shemesh-ops-form/scripts/setup-windows.ps1 | iex
+[Net.ServicePointManager]::SecurityProtocol='Tls12'; iex (New-Object Net.WebClient).DownloadString('https://tifult906-netizen.github.io/shemesh-ops-form/scripts/setup-windows.ps1')
 ```
+
+> Note: `iwr ... | iex` does **not** work for this repo's script because
+> GitHub Pages serves `.ps1` as `application/octet-stream`, so iwr returns
+> the body as `byte[]` and iex can't parse bytes. `Net.WebClient.DownloadString`
+> always returns a UTF-8 string.
 
 macOS / Linux equivalent:
 
