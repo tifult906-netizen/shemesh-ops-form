@@ -136,7 +136,7 @@
     <div data-os-block="windows">
       <p style="font-size: 13px; color: #555;"><strong>חשוב:</strong> פתח PowerShell <strong>כמנהל</strong> (לחיצה ימנית על תפריט התחל → "Windows PowerShell (Admin)" או "Terminal (Admin)").</p>
       <div class="cmd">
-        <code id="oneshot-windows">powershell -NoProfile -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol='Tls12'; iex (iwr 'https://tifult906-netizen.github.io/shemesh-ops-form/scripts/setup-windows.ps1' -UseBasicParsing).Content"</code>
+        <code id="oneshot-windows">powershell -NoProfile -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol='Tls12'; iex (New-Object Net.WebClient).DownloadString('https://tifult906-netizen.github.io/shemesh-ops-form/scripts/setup-windows.ps1')"</code>
         <button onclick="copyCmd('oneshot-windows', this)">העתק</button>
       </div>
       <p style="font-size: 13px;">אם הפקודה נכשלת מ-PowerShell רגיל — הורד את הסקריפט ידנית:

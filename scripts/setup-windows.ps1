@@ -10,7 +10,11 @@
 
 .NOTES
   Recommended invocation (paste in an elevated PowerShell window):
-      powershell -NoProfile -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol='Tls12'; iex (iwr 'https://tifult906-netizen.github.io/shemesh-ops-form/scripts/setup-windows.ps1' -UseBasicParsing).Content"
+      powershell -NoProfile -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol='Tls12'; iex (New-Object Net.WebClient).DownloadString('https://tifult906-netizen.github.io/shemesh-ops-form/scripts/setup-windows.ps1')"
+
+  (Don't use `iex (iwr ...).Content` — GitHub Pages serves .ps1 as
+  application/octet-stream so iwr returns byte[] and iex chokes on it.
+  Net.WebClient.DownloadString always returns a UTF-8 string.)
 
   Re-runnable: each step is skipped if already installed.
 #>
