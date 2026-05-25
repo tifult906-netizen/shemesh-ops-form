@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>1. העלאת מסמכים</h2>
+  <p class="muted">העלה את כל המסמכים הדרושים לפעולת המשיכה. המערכת תחלץ את הנתונים אוטומטית.</p>
+
+  <form method="post" action="/upload" enctype="multipart/form-data">
+    <div class="row">
+      <div class="field">
+        <label>תעודת זהות – צד קדמי</label>
+        <input type="file" name="id_front" accept="image/*" required>
+      </div>
+      <div class="field">
+        <label>תעודת זהות – צד אחורי / ספח</label>
+        <input type="file" name="id_back" accept="image/*" required>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>אישור ניהול חשבון</label>
+        <input type="file" name="bank" accept="application/pdf" required>
+      </div>
+      <div class="field">
+        <label>דוח יתרות תגמולים</label>
+        <input type="file" name="tagmulim" accept="application/pdf" required>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>דוח יתרות פיצויים</label>
+        <input type="file" name="pitsuyim" accept="application/pdf" required>
+      </div>
+      <div class="field">
+        <label>דוח מסלקה (אופציונלי)</label>
+        <input type="file" name="maslaka" accept="application/pdf">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>אישור תקופות ביטוח ומעסיקים – ביטוח לאומי (אופציונלי)</label>
+        <input type="file" name="bl_history" accept="application/pdf">
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button type="submit" class="btn">המשך לסקירת מידע ←</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

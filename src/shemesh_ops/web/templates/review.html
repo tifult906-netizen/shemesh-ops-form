@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>2. סקירת מידע שחולץ</h2>
+  <p class="muted">המידע הבא חולץ אוטומטית. ודא ותקן לפני המעבר להגדרת הפעולות.</p>
+
+  <form method="post" action="/review/{{ session_id }}">
+    <h3>פרטי הלקוח</h3>
+    <div class="row">
+      <div class="field">
+        <label>שם מלא</label>
+        <input type="text" name="full_name" value="{{ picture.identity.full_name }}">
+      </div>
+      <div class="field">
+        <label>ת.ז</label>
+        <input type="text" name="id_number" value="{{ picture.identity.id_number }}">
+      </div>
+      <div class="field">
+        <label>טלפון נייד</label>
+        <input type="tel" name="phone" value="">
+      </div>
+    </div>
+
+    {% if picture.id_card %}
+    <h3>מתעודת הזהות</h3>
+    <div class="row">
+      <div class="field"><label>תאריך לידה</label>
+        <input type="text" value="{{ picture.id_card.date_of_birth or '' }}" readonly></div>
+      <div class="field"><label>תאריך הנפקה</label>
+        <input type="text" value="{{ picture.id_card.issue_date or '' }}" readonly></div>
+      <div class="field"><label>שם האב</label>
+        <input type="text" value="{{ picture.id_card.father_name or '' }}" readonly></div>
+      <div class="field"><label>שם האם</label>
+        <input type="text" value="{{ picture.id_card.mother_name or '' }}" readonly></div>
+    </div>
+    {% endif %}
+
+    <h3>פרטי הבנק (יעד התשלום)</h3>
+    <div class="row">
+      <div class="field"><label>בעל החשבון</label>
+        <input type="text" name="holder_name" value="{{ picture.bank.holder_name }}"></div>
+      <div class="field"><label>בנק</label>
+        <input type="text" name="bank_name" value="{{ picture.bank.bank_name or '' }}"></div>
+      <div class="field"><label>קוד בנק</label>
+        <input type="text" name="bank_code" value="{{ picture.bank.bank_code }}"></div>
+      <div class="field"><label>סניף</label>
+        <input type="text" name="branch" value="{{ picture.bank.branch }}"></div>
+      <div class="field"><label>מספר חשבון</label>
+        <input type="text" name="account_number" value="{{ picture.bank.account_number }}"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>IBAN</label>
+        <input type="text" name="iban" value="{{ picture.bank.iban or '' }}"></div>
+      <div class="field"><label>כתובת</label>
+        <input type="text" name="address" value="{{ picture.bank.address or '' }}"></div>
+    </div>
+
+    {% if picture.maslaka and picture.maslaka.funds %}
+    <h3>קופות שנמצאו ({{ picture.maslaka.funds|length }})</h3>
+    <table>
+      <thead><tr>
+        <th>חברה מנהלת</th><th>סוג מוצר</th><th>מספר פוליסה</th>
+        <th>סטטוס</th><th>יתרה</th><th>תאריך תחילת תכנית</th><th>תיק ניכויים</th>
+      </tr></thead>
+      <tbody>
+      {% for f in picture.maslaka.funds %}
+        <tr>
+          <td>{{ f.management_company or '–' }}</td>
+          <td>{{ f.product_type_label or f.product_category }}</td>
+          <td>{{ f.policy_number }}</td>
+          <td>{{ f.status or '–' }}</td>
+          <td>₪{{ "{:,.2f}".format(f.total_balance) }}</td>
+          <td>{{ f.plan_start_date or '–' }}</td>
+          <td>{{ f.tik_nikuim or '–' }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+
+    {% if picture.pitsuyim and picture.pitsuyim.rows %}
+    <h3>פיצויים לפי מעסיק ({{ picture.pitsuyim.rows|length }})</h3>
+    <table>
+      <thead><tr>
+        <th>קופה (תיק)</th><th>מעסיק</th><th>מזהה מעסיק</th>
+        <th>תחילת העסקה</th><th>שווי פיצויים</th>
+      </tr></thead>
+      <tbody>
+      {% for r in picture.pitsuyim.rows %}
+        <tr>
+          <td>{{ r.tik_nikuim }}</td>
+          <td>{{ r.employer_name or '–' }}</td>
+          <td>{{ r.employer_id or '–' }}</td>
+          <td>{{ r.employment_start_date or '–' }}</td>
+          <td>₪{{ "{:,.2f}".format(r.shavi_pitsuyim_per_employer) }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+
+    {% if picture.bl_history %}
+    <h3 class="muted">ביטוח לאומי — {{ picture.bl_history.periods|length }} תקופות העסקה,
+        {{ picture.bl_history.employer_details|length }} מעסיקים שזוהו</h3>
+    {% endif %}
+
+    <div class="btn-group">
+      <a href="/" class="btn secondary">→ חזור</a>
+      <button type="submit" class="btn">המשך להגדרת פעולות ←</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

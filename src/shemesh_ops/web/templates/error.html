@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>שגיאה {{ status_code }}</h2>
+  <p>{{ detail }}</p>
+  {% if trace %}
+    <details>
+      <summary class="muted">פרטים טכניים</summary>
+      <pre style="white-space: pre-wrap; font-size: 12px; background: #f8f8f8; padding: 12px; border-radius: 4px">{{ trace }}</pre>
+    </details>
+  {% endif %}
+  <div class="btn-group">
+    <a href="/" class="btn">חזור לדף הראשי</a>
+  </div>
+</div>
+{% endblock %}

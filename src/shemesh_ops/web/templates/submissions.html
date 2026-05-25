@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>הגשות שמורות</h2>
+  {% if last_id %}
+    <div class="finding info">ההגשה האחרונה נשמרה כ-#{{ last_id }}.</div>
+  {% endif %}
+  {% if rows %}
+  <table>
+    <thead><tr>
+      <th>#</th><th>תאריך</th><th>נציג</th><th>ת.ז לקוח</th><th>סטטוס</th><th>פעולות</th>
+    </tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr>
+        <td>{{ r.id }}</td>
+        <td>{{ r.created_at }}</td>
+        <td>{{ r.rep_name or '–' }}</td>
+        <td>{{ r.client_id }}</td>
+        <td>{{ r.status }}</td>
+        <td>
+          {% if r.pdf_path %}
+            <a href="/submissions/{{ r.id }}/pdf" class="btn secondary" style="padding: 4px 10px; font-size: 12px">הורד PDF</a>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="muted">אין הגשות שמורות עדיין.</p>
+  {% endif %}
+
+  <div class="btn-group">
+    <a href="/" class="btn">+ הגשה חדשה</a>
+  </div>
+</div>
+{% endblock %}

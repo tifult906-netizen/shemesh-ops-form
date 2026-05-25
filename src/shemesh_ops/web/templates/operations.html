@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>3. הגדרת פעולות</h2>
+  <p class="muted">פרטי ההתקשרות, המסמכים שצורפו, ופעולות המשיכה ({{ form.operations|length }} מתוך {{ form.max_operations }} מקסימום).</p>
+
+  <form method="post" action="/operations/{{ session_id }}">
+    <input type="hidden" name="op_count" value="{{ form.operations|length }}">
+
+    <h3>פרטי כיסוי</h3>
+    <div class="row">
+      <div class="field"><label>שם נציג</label>
+        <input type="text" name="rep_name" value="{{ form.cover.rep_name }}" placeholder="אוהד / נדב / יוני / שי / דורון / מאי / אגם"></div>
+      <div class="field"><label>סכום כולל (₪)</label>
+        <input type="text" name="amount_total" value="{{ form.cover.amount_total or '' }}"></div>
+      <div class="field"><label>סכום שנגבה (₪)</label>
+        <input type="text" name="amount_collected" value="{{ form.cover.amount_collected or '' }}"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>אמצעי תשלום</label>
+        <select name="payment_method">
+          <option value="">— בחר —</option>
+          <option value="credit"        {% if form.cover.payment_method=='credit' %}selected{% endif %}>אשראי</option>
+          <option value="bank_transfer" {% if form.cover.payment_method=='bank_transfer' %}selected{% endif %}>העברה בנקאית</option>
+          <option value="bit"           {% if form.cover.payment_method=='bit' %}selected{% endif %}>ביט</option>
+          <option value="cash"          {% if form.cover.payment_method=='cash' %}selected{% endif %}>מזומן</option>
+        </select>
+      </div>
+    </div>
+
+    <h3>מסמכים מצורפים</h3>
+    <div class="checkbox-group">
+      <label><input type="checkbox" name="attached_id_front"          {% if form.cover.attached.id_front %}checked{% endif %}> ת.ז קדמי</label>
+      <label><input type="checkbox" name="attached_id_back_or_sefach" {% if form.cover.attached.id_back_or_sefach %}checked{% endif %}> ת.ז אחורי / ספח</label>
+      <label><input type="checkbox" name="attached_bank_confirmation" {% if form.cover.attached.bank_confirmation %}checked{% endif %}> אישור ניהול חשבון</label>
+      <label><input type="checkbox" name="attached_form_161"          {% if form.cover.attached.form_161 %}checked{% endif %}> טופס 161</label>
+      <label><input type="checkbox" name="attached_tax_confirmation"  {% if form.cover.attached.tax_confirmation %}checked{% endif %}> אישור מס</label>
+      <label><input type="checkbox" name="attached_tax_full"          {% if form.cover.attached.tax_full %}checked{% endif %}> מס מלא</label>
+      <label><input type="checkbox" name="attached_employment_end"    {% if form.cover.attached.employment_end %}checked{% endif %}> סיום העסקה</label>
+      <label><input type="checkbox" name="attached_retzef_employers"  {% if form.cover.attached.retzef_employers %}checked{% endif %}> רצף מעסיקים</label>
+      <label><input type="checkbox" name="attached_funds_release"     {% if form.cover.attached.funds_release %}checked{% endif %}> שחרור כספים</label>
+      <label><input type="checkbox" name="attached_has_personal_area" {% if form.cover.attached.has_personal_area %}checked{% endif %}> יש איזור אישי</label>
+    </div>
+
+    <div class="checkbox-group" style="margin-top:8px">
+      <label><input type="checkbox" name="pull_retzef" {% if form.cover.pull_retzef_from_bituach_leumi %}checked{% endif %}>
+        להוציא רצף מעסיקים מביטוח לאומי</label>
+      <label><input type="checkbox" name="pull_debt" {% if form.cover.pull_for_debt_closure %}checked{% endif %}>
+        להוציא לצורך סגירת חוב</label>
+    </div>
+
+    <div class="row">
+      <div class="field" style="flex: 1 1 100%">
+        <label>הערות כלליות</label>
+        <textarea name="cover_notes">{{ form.cover.notes }}</textarea>
+      </div>
+    </div>
+
+    <h3>פעולות משיכה</h3>
+    {% for op in form.operations %}
+      {% set rec = recommendations[loop.index0] %}
+      {% set checklist = checklists[loop.index0] %}
+      <div class="op-card">
+        <h3>פעולה #{{ loop.index }}</h3>
+
+        <div class="row">
+          <div class="field">
+            <label>חברת ביטוח (מקור הכסף)</label>
+            <select name="op_{{ loop.index0 }}_company">
+              <option value="">— בחר —</option>
+              {% for c in companies %}
+                <option value="{{ c }}" {% if op.insurance_company == c %}selected{% endif %}>{{ c }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label>סוג מוצר</label>
+            <select name="op_{{ loop.index0 }}_product_type">
+              <option value="">— בחר —</option>
+              <option value="pension"       {% if op.product_type=='pension' %}selected{% endif %}>קרן פנסיה</option>
+              <option value="gemel"         {% if op.product_type=='gemel' %}selected{% endif %}>קופת גמל</option>
+              <option value="policy"        {% if op.product_type=='policy' %}selected{% endif %}>פוליסה</option>
+              <option value="study_fund"    {% if op.product_type=='study_fund' %}selected{% endif %}>קרן השתלמות</option>
+              <option value="child_savings" {% if op.product_type=='child_savings' %}selected{% endif %}>חסכון לילד</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>מספר קופה</label>
+            <select name="op_{{ loop.index0 }}_kupa">
+              <option value="">— בחר —</option>
+              {% for f in available_funds %}
+                <option value="{{ f.policy_number }}" {% if op.kupa_number == f.policy_number %}selected{% endif %}>
+                  {{ f.policy_number }} – {{ f.management_company or f.product_category }} (₪{{ "{:,.0f}".format(f.total_balance) }})
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label>וותק הקופה (תאריך תחילת תכנית)</label>
+            <input type="date" name="op_{{ loop.index0 }}_vintage" value="{{ op.kupa_vintage or '' }}">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>סוג הכספים</label>
+            <div class="checkbox-group">
+              <label><input type="checkbox" name="op_{{ loop.index0 }}_money_tagmulim" {% if 'tagmulim' in op.money_types %}checked{% endif %}> תגמולים</label>
+              <label><input type="checkbox" name="op_{{ loop.index0 }}_money_pitsuyim" {% if 'pitsuyim' in op.money_types %}checked{% endif %}> פיצויים</label>
+            </div>
+          </div>
+          <div class="field">
+            <label>מיסוי</label>
+            <select name="op_{{ loop.index0 }}_tax_mode" {% if rec.locked %}disabled{% endif %}>
+              <option value="">— בחר —</option>
+              <option value="full"    {% if op.tax_mode=='full' %}selected{% endif %}>מס מלא</option>
+              <option value="partial" {% if op.tax_mode=='partial' %}selected{% endif %}>מס חלקי</option>
+              <option value="exempt"  {% if op.tax_mode=='exempt' %}selected{% endif %}>פטור ממס</option>
+            </select>
+            {% if rec.locked %}
+              <input type="hidden" name="op_{{ loop.index0 }}_tax_mode" value="{{ rec.recommended_mode }}">
+            {% endif %}
+            <div class="tax-rec {% if rec.locked %}locked{% endif %}">
+              {% if rec.locked %}🔒 ננעל אוטומטית: {% endif %}{{ rec.reason }}
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field" style="flex: 1 1 100%">
+            <label>מעסיקים (לפעולה זו)</label>
+            <table>
+              <thead><tr>
+                <th>שם מעסיק</th><th>תגמולים – מלוא הסכום</th><th>תגמולים – על סך</th>
+                <th>פיצויים – מס מלא</th><th>פיצויים – פטור מס</th>
+              </tr></thead>
+              <tbody>
+              {% set this_op_idx = loop.index0 %}
+              {# Render existing employer rows, padded with 2 empty slots #}
+              {% set rows = op.employers + [None]*( (8 - op.employers|length) if (8 - op.employers|length) > 0 else 2 ) %}
+              {% for emp in rows[:10] %}
+                <tr>
+                  <td><input type="text" name="op_{{ this_op_idx }}_emp_{{ loop.index0 }}_name"
+                             value="{{ emp.employer_name if emp else '' }}" style="width:100%"
+                             list="emp-list-{{ this_op_idx }}"></td>
+                  <td><input type="checkbox" name="op_{{ this_op_idx }}_emp_{{ loop.index0 }}_tag_full"
+                             {% if emp and emp.tagmulim_full %}checked{% endif %}></td>
+                  <td><input type="text" name="op_{{ this_op_idx }}_emp_{{ loop.index0 }}_tag_amount"
+                             value="{{ emp.tagmulim_amount if emp and emp.tagmulim_amount else '' }}"
+                             style="width:90px"></td>
+                  <td><input type="checkbox" name="op_{{ this_op_idx }}_emp_{{ loop.index0 }}_pit_full_tax"
+                             {% if emp and emp.pitsuyim_full_tax %}checked{% endif %}></td>
+                  <td><input type="checkbox" name="op_{{ this_op_idx }}_emp_{{ loop.index0 }}_pit_exempt"
+                             {% if emp and emp.pitsuyim_tax_exempt %}checked{% endif %}></td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+            <datalist id="emp-list-{{ this_op_idx }}">
+              {% for e in available_employers %}
+                <option value="{{ e.employer_name }}">
+              {% endfor %}
+            </datalist>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field" style="flex: 1 1 100%">
+            <label>הערות לפעולה</label>
+            <textarea name="op_{{ this_op_idx }}_notes">{{ op.notes }}</textarea>
+          </div>
+        </div>
+
+        {% if checklist.docs %}
+          <h4 style="margin-top:8px">מסמכים נדרשים לפעולה זו</h4>
+          <ul class="docs-list">
+          {% for d in checklist.docs %}
+            <li>{{ d.label_he }} <span class="muted">— {{ d.reason }}</span></li>
+          {% endfor %}
+          </ul>
+          {% if checklist.notes %}
+            <p class="muted">{% for n in checklist.notes %}{{ n }}{% if not loop.last %} · {% endif %}{% endfor %}</p>
+          {% endif %}
+        {% endif %}
+
+        <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap">
+          <button type="submit" formaction="/operations/{{ session_id }}/autofill-employers/{{ loop.index0 }}" class="btn secondary" formnovalidate>
+            ⤵ טען מעסיקים מדוח פיצויים
+          </button>
+          <button type="submit" formaction="/operations/{{ session_id }}/remove/{{ loop.index0 }}" class="btn danger" formnovalidate>
+            הסר פעולה זו
+          </button>
+        </div>
+      </div>
+    {% endfor %}
+
+    {% if form.operations|length < form.max_operations %}
+      <button type="submit" formaction="/operations/{{ session_id }}/add" class="btn secondary" formnovalidate>
+        + הוסף פעולה
+      </button>
+    {% endif %}
+
+    <div class="btn-group">
+      <a href="/review/{{ session_id }}" class="btn secondary">→ חזור לסקירה</a>
+      <button type="submit" class="btn">המשך לתצוגה מקדימה ←</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

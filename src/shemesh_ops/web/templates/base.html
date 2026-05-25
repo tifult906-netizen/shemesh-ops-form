@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>{% block title %}שמש – טופס תפעול{% endblock %}</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <h1>שמש – טופס תפעול</h1>
+  <nav class="steps">
+    <a href="/" class="{% if step==1 %}current{% endif %}">1. העלאת מסמכים</a>
+    {% if session_id %}
+      <a href="/review/{{ session_id }}" class="{% if step==2 %}current{% endif %}">2. סקירת מידע</a>
+      <a href="/operations/{{ session_id }}" class="{% if step==3 %}current{% endif %}">3. הגדרת פעולות</a>
+      <a href="/preview/{{ session_id }}" class="{% if step==4 %}current{% endif %}">4. תצוגה מקדימה</a>
+      <form method="post" action="/reset/{{ session_id }}" style="margin:0">
+        <button type="submit"
+                onclick="return confirm('האם להתחיל מחדש? המידע בהגשה הנוכחית יימחק.');"
+                style="background:none; border:none; color:#ffd9d9; cursor:pointer; font-size:13px; padding:6px 10px;">
+          התחל מחדש ↺
+        </button>
+      </form>
+    {% else %}
+      <span>2. סקירת מידע</span>
+      <span>3. הגדרת פעולות</span>
+      <span>4. תצוגה מקדימה</span>
+    {% endif %}
+    <a href="/submissions" style="margin-right: auto; color:#cfd8dc; text-decoration:none; padding: 6px 10px;">הגשות שמורות 📋</a>
+  </nav>
+</header>
+<main class="wrapper">
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>
