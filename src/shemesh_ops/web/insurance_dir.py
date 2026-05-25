@@ -1,7 +1,14 @@
-"""Lookup helpers for the insurance-companies CSV (company × product → email)."""
+"""Lookup helpers for the insurance-companies CSV (company × product → email).
+
+The CSV path is configurable via the `SHEMESH_INSURANCE_CSV` env var. If
+neither the configured path nor the default `insurance_companies.csv` is
+present, falls back to the shipped `insurance_companies.example.csv` so the
+UI still renders something (with clearly-placeholder addresses).
+"""
 from __future__ import annotations
 
 import csv
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -18,7 +25,21 @@ PRODUCT_TO_CSV_KEYS: dict[str, list[str]] = {
 # Fall-back keys when no product-specific row exists for a company.
 GENERIC_FALLBACK_KEYS = ["לכל פעולה", "כל פעולה", "לכל פעולה/ השלמת מסמכים"]
 
-CSV_PATH = Path(__file__).resolve().parents[3] / "insurance_companies.csv"
+REPO_ROOT = Path(__file__).resolve().parents[3]
+DEFAULT_CSV = REPO_ROOT / "insurance_companies.csv"
+EXAMPLE_CSV = REPO_ROOT / "insurance_companies.example.csv"
+
+
+def _resolve_csv_path() -> Path:
+    env = os.environ.get("SHEMESH_INSURANCE_CSV")
+    if env and Path(env).is_file():
+        return Path(env)
+    if DEFAULT_CSV.is_file():
+        return DEFAULT_CSV
+    return EXAMPLE_CSV
+
+
+CSV_PATH = _resolve_csv_path()
 
 
 @dataclass(frozen=True)
@@ -49,8 +70,14 @@ _CACHE: Optional[list[InsuranceRow]] = None
 def all_rows() -> list[InsuranceRow]:
     global _CACHE
     if _CACHE is None:
-        _CACHE = _load_rows()
+        _CACHE = _load_rows(_resolve_csv_path())
     return _CACHE
+
+
+def reload_rows() -> None:
+    """Force the next all_rows() call to re-read the CSV from disk."""
+    global _CACHE
+    _CACHE = None
 
 
 def all_companies() -> list[str]:
