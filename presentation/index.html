@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>שמש – טופס תפעול אוטומטי</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css" id="theme">
+
+<style>
+  .reveal { direction: rtl; font-family: "Segoe UI", Arial, sans-serif; }
+  .reveal h1, .reveal h2, .reveal h3, .reveal h4 { color: #1a4a8c; text-transform: none; font-weight: 600; }
+  .reveal h1 { font-size: 2.4em; }
+  .reveal h2 { font-size: 1.7em; }
+  .reveal h3 { font-size: 1.3em; }
+  .reveal p, .reveal li { font-size: 0.7em; line-height: 1.5; }
+  .reveal ul, .reveal ol { display: block; margin-right: 1.4em; margin-left: 0; }
+  .reveal li { text-align: right; }
+  .reveal .muted { color: #6c757d; font-size: 0.55em; }
+  .reveal pre { direction: ltr; text-align: left; font-size: 0.45em; }
+  .reveal pre code { padding: 12px; border-radius: 4px; max-height: 500px; }
+  .reveal table { font-size: 0.55em; margin: 0 auto; border-collapse: collapse; }
+  .reveal th, .reveal td { border: 1px solid #d8dde3; padding: 6px 10px; }
+  .reveal th { background: #eef2f6; font-weight: 600; }
+  .reveal section img.screenshot {
+    box-shadow: 0 6px 22px rgba(0,0,0,0.18);
+    border: 1px solid #d8dde3; border-radius: 6px;
+    max-width: 100%; max-height: 540px;
+  }
+  .reveal section img.full {
+    box-shadow: 0 6px 22px rgba(0,0,0,0.18);
+    border: 1px solid #d8dde3; border-radius: 6px;
+    max-height: 620px;
+  }
+  .reveal .two-col { display: flex; gap: 20px; align-items: flex-start; }
+  .reveal .two-col > * { flex: 1; }
+  .reveal .badge {
+    display: inline-block; padding: 4px 10px; border-radius: 12px;
+    background: #1a4a8c; color: white; font-size: 0.6em; margin: 2px;
+  }
+  .reveal .pill {
+    display: inline-block; padding: 6px 14px; border-radius: 20px;
+    background: #eef2f6; color: #1a4a8c; font-size: 0.65em;
+    margin: 4px; border: 1px solid #d8dde3;
+  }
+  .reveal .arrow { color: #1a4a8c; font-size: 1.4em; vertical-align: middle; }
+  .reveal .check { color: #2e7d32; font-weight: bold; }
+  .reveal .cross { color: #c62828; font-weight: bold; }
+  .reveal .callout {
+    background: #fff8e1; border-right: 4px solid #f9a825;
+    padding: 14px 18px; border-radius: 4px; margin: 12px 0;
+    font-size: 0.7em; text-align: right;
+  }
+  .reveal .callout.good { background: #e8f5e9; border-right-color: #2e7d32; }
+  .reveal .callout.info { background: #e3f2fd; border-right-color: #1976d2; }
+  .reveal .step-num {
+    display: inline-block; width: 50px; height: 50px;
+    background: #1a4a8c; color: white; border-radius: 50%;
+    text-align: center; line-height: 50px; font-size: 1.4em;
+    font-weight: bold; margin-left: 15px; vertical-align: middle;
+  }
+  .reveal .step-title { display: inline-block; vertical-align: middle; font-size: 1.3em; color: #1a4a8c; font-weight: 600; }
+  .reveal .toc li { list-style: none; padding: 8px 0; }
+  .reveal .toc strong { color: #1a4a8c; }
+  .reveal .footer { position: absolute; bottom: 20px; left: 20px; font-size: 0.4em; color: #999; }
+  .reveal .right-aligned { text-align: right; }
+  .reveal .center { text-align: center; }
+  /* slide numbers */
+  .reveal .slide-number { left: 8px; right: auto; color: #777; }
+</style>
+</head>
+<body>
+
+<div class="reveal">
+  <div class="slides">
+
+  <!-- ============== Title ============== -->
+  <section data-background-color="#1a4a8c">
+    <div style="color: white;">
+      <h1 style="color: white; font-size: 3.5em; margin-bottom: 0.2em;">שמש</h1>
+      <h2 style="color: #cfd8dc; margin-top: 0;">טופס תפעול אוטומטי</h2>
+      <p style="color: #cfd8dc; font-size: 0.9em; margin-top: 1.5em;">
+        מהעלאה ועד שליחה — תוך דקה.
+      </p>
+      <p class="muted" style="color: #cfd8dc; margin-top: 2em;">
+        מצגת וסקירת שימוש · מאי 2026
+      </p>
+    </div>
+  </section>
+
+  <!-- ============== Problem ============== -->
+  <section>
+    <h2>היום: מה לוקח לכם זמן?</h2>
+    <div class="two-col">
+      <div>
+        <ul>
+          <li>הלקוח שולח לנו 5-7 מסמכים: ת.ז, אישור בנק, דוחות מסלקה (תגמולים + פיצויים), דוח ביטוח לאומי</li>
+          <li>כל פעם — קוראים ידנית, מעתיקים שם, מספר ת.ז, מספר חשבון, מספרי קופות, שמות מעסיקים</li>
+          <li>בודקים ידנית: לקוח מתחת ל-60? יש 161? יש שחרור? קרן השתלמות בת כמה שנים?</li>
+          <li>ממלאים טופס תפעול בוורד / PDF — כתובים בעברית RTL, קל לטעות</li>
+          <li>שולחים למייל הנכון של החברה לפי סוג המוצר</li>
+        </ul>
+      </div>
+      <div class="callout">
+        <strong>הבעיה:</strong> כל לקוח דורש בין רבע שעה לשעה של עבודה ידנית עם הרבה אפשרות לטעויות —
+        טעות בספרה אחת בת.ז או במספר חשבון יכולה לעכב את התהליך בשבוע.
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== Solution ============== -->
+  <section>
+    <h2>הפתרון: כלי וובי שעושה את הכל</h2>
+    <div class="two-col">
+      <div>
+        <h3>מה הוא עושה?</h3>
+        <ul>
+          <li><span class="check">✓</span> מקבל את כל המסמכים בהעלאה אחת</li>
+          <li><span class="check">✓</span> מחלץ אוטומטית את כל הנתונים (מספרים בוודאות, עברית באמצעות מודל ראייה מקומי)</li>
+          <li><span class="check">✓</span> מציע מיסוי על פי החוקים (הוני / 6 שנים בקה"ש)</li>
+          <li><span class="check">✓</span> מודיע אילו מסמכים צריך להוסיף לפי המקרה</li>
+          <li><span class="check">✓</span> בודק את עצמו לפני יצירת ה-PDF</li>
+          <li><span class="check">✓</span> מציג את כתובת המייל לשליחה לכל חברה</li>
+        </ul>
+      </div>
+      <div>
+        <div class="callout good">
+          <strong>התוצאה:</strong> טופס תפעול מוכן ב-2-3 דקות במקום שעה,
+          ועם כיסוי על כל החוקים הקטנים שקל לשכוח (Altshuler &amp; Harel דורשים 2 שנים לרצף, לא שנה).
+        </div>
+        <div class="callout info">
+          <strong>פרטיות:</strong> כל המודלים רצים מקומית — נתוני הלקוח לא יוצאים מהמחשב.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== Architecture ============== -->
+  <section>
+    <h2>איך זה עובד — מבט כללי</h2>
+    <pre style="background:#f6f7f9; padding: 14px;"><code class="hljs">
+   העלאה              חילוץ             סקירה              הגדרה              PDF
+   ──────             ──────            ──────             ──────             ──────
+   ID JPGs   ─┐
+   bank.pdf  ─┤
+   tag.pdf   ─┼─→  parsers   ─┐
+   pit.pdf   ─┤    (deterministic)
+   mas.pdf   ─┤    + vision   ─┴─→  ClientPicture  ─→  Rules + Checklist  ─→  Render
+   bl.pdf    ─┘   (Mock/Ollama)        (פדנטי JSON)        (תאריכים/חוקים)      (RTL PDF)
+                                            ↓                    ↓
+                                            ↓              סקירת מודל
+                                            ↓                    ↓
+                                       SQLite store ←────  שמירה + ניתוב מייל
+    </code></pre>
+    <p class="muted center">5 מקבילי PDF + 2 צילומי ת.ז → מודל ראייה מקומי → טופס מוכן + שמירה במסד נתונים</p>
+  </section>
+
+  <!-- ============== Demo intro ============== -->
+  <section>
+    <h2>נסיון חיים: אורי בן פורת</h2>
+    <ul>
+      <li><strong>פרופיל:</strong> בן 53, גר במולדת, חשבון בבנק הפועלים</li>
+      <li><strong>קופות:</strong> 8 קופות בכל הסוגים — קרן פנסיה ותיקה (3), חדשה, פוליסות סיכון, קרן השתלמות (2)</li>
+      <li><strong>פיצויים:</strong> ₪30,085 בסך הכל, מ-7 מעסיקים שונים</li>
+      <li><strong>היסטוריה:</strong> 30 תקופות עבודה ב-19 מעסיקים שונים, החל מ-1991</li>
+      <li><strong>הפעולה:</strong> משיכת תגמולים במס מלא ממגדל וטל-נטפים</li>
+    </ul>
+    <p class="muted">בואו נראה איך מטפלים בו דרך הכלי, צעד אחר צעד.</p>
+  </section>
+
+  <!-- ============== Step 1 ============== -->
+  <section>
+    <span class="step-num">1</span>
+    <span class="step-title">העלאת מסמכים</span>
+    <div class="two-col" style="margin-top: 20px;">
+      <div>
+        <img src="img/ui_step1_upload.png" class="screenshot" alt="עמוד העלאת מסמכים">
+      </div>
+      <div>
+        <ul>
+          <li>גוררים את כל הקבצים פנימה</li>
+          <li>5 PDFs + 2 צילומי ת.ז</li>
+          <li>המערכת בודקת גודל, סוג, וחתימת קובץ</li>
+          <li>קבצים גדולים מ-10MB או מסוג לא נכון נדחים מיד עם הודעה ברורה</li>
+          <li>2 קבצים אופציונליים: דוח מסלקה מלא + אישור תקופות ביטוח לאומי</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== Step 2 ============== -->
+  <section>
+    <span class="step-num">2</span>
+    <span class="step-title">סקירת המידע שחולץ</span>
+    <img src="img/ui_step2_review.png" class="full" alt="סקירת המידע">
+    <p class="muted">כל השדות ניתנים לעריכה — הנציג הוא הקובע האחרון על המידע</p>
+  </section>
+
+  <!-- ============== Step 2 detail ============== -->
+  <section>
+    <h2>מה נחלץ אוטומטית?</h2>
+    <div class="two-col">
+      <div>
+        <h3>נתונים מספריים (וודאי)</h3>
+        <ul>
+          <li>ת.ז (9 ספרות עם ספרת ביקורת)</li>
+          <li>מספר חשבון, סניף, IBAN</li>
+          <li>תאריכי הנפקה / לידה / תוקף</li>
+          <li>כל מספרי הקופות (תיק ניכויים, מספר פוליסה, AMA)</li>
+          <li>כל ה-₪ סכומים בפילוח לפי דלי מס (הוני / קצבתי)</li>
+          <li>תאריכי תחילת תכנית לכל קופה (חשוב לחישוב 6 שנים)</li>
+        </ul>
+      </div>
+      <div>
+        <h3>נתוני עברית (דרך מודל ראייה)</h3>
+        <ul>
+          <li>שם מלא + שמות הורים (מתעודת זהות)</li>
+          <li>שם בעל חשבון + כתובת</li>
+          <li>שם חברה מנהלת לכל קופה</li>
+          <li>סטטוס קופה (פעיל / לא פעיל)</li>
+          <li>שם מעסיק לכל שורת פיצויים</li>
+          <li>היסטוריית 30 תקופות עבודה (ביטוח לאומי)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout info">
+      <strong>למה זה צריך מודל?</strong> כל ה-PDFs המקצועיים בישראל משתמשים בפונטים עבריים מיוחדים שלא מתפענחים
+      ישירות מטקסט. מודל ראייה (Qwen2.5-VL מקומי) קורא את התמונה ומחזיר את הטקסט הנכון.
+    </div>
+  </section>
+
+  <!-- ============== Step 3 ============== -->
+  <section>
+    <span class="step-num">3</span>
+    <span class="step-title">הגדרת פעולות משיכה</span>
+    <img src="img/ui_step3_top.png" class="full" alt="הגדרת פעולות">
+  </section>
+
+  <!-- ============== Step 3 features ============== -->
+  <section>
+    <h2>פעולה פר קופה — עם כל החוקים</h2>
+    <ul>
+      <li><strong>חברת ביטוח:</strong> רשימה נגללת של 18 חברות (מנורה, אלטשולר, מיטב דש, הפניקס, הראל, מגדל, ילין לפידות, ...)</li>
+      <li><strong>סוג מוצר:</strong> 5 אפשרויות — קרן פנסיה / קופת גמל / פוליסה / קרן השתלמות / חסכון לילד</li>
+      <li><strong>מספר קופה:</strong> רשימה נגללת של הקופות שנמצאו אצל הלקוח, עם היתרה כדי לזהות במהירות</li>
+      <li><strong>סוג כספים:</strong> תגמולים + פיצויים (סימון מרובה — אפשר את שניהם בו זמנית)</li>
+      <li><strong>מיסוי:</strong> ננעל אוטומטית לפי החוקים (פירוט בשקפים הבאים)</li>
+      <li><strong>מעסיקים:</strong> עד 8 שורות פר פעולה — עם השלמה אוטומטית מהפיצויים</li>
+    </ul>
+  </section>
+
+  <!-- ============== The autofill superpower ============== -->
+  <section>
+    <h2>טריק החיים: ⤵ טען מעסיקים מדוח פיצויים</h2>
+    <div class="two-col">
+      <div>
+        <img src="img/ui_step3_with_autofill.png" class="screenshot" alt="טען מעסיקים">
+      </div>
+      <div>
+        <p>במקום להקליד שם של כל מעסיק (וטעויות איות), לחיצה אחת על "טען מעסיקים מדוח פיצויים":</p>
+        <ol>
+          <li>שולפת את כל המעסיקים מהדוח של המסלקה</li>
+          <li>סוננת לאלה ששייכים לקופה שבחרתם</li>
+          <li>ממלאת את השדות עם השמות + הסכומים</li>
+          <li>מסמנת "מס מלא" כברירת מחדל — הנציג יכול לשנות לפטור</li>
+        </ol>
+        <div class="callout good">
+          חוסך 2-3 דקות פר פעולה, מבטל טעויות איות בשמות חברות בעברית.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== Smart rules: tax ============== -->
+  <section>
+    <h2>חוקי מס אוטומטיים</h2>
+    <table>
+      <thead>
+        <tr><th>תרחיש</th><th>מיסוי</th><th>נעול?</th><th>למה</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>קופה כוללת רכיב הוני</td>
+          <td><span class="badge" style="background:#2e7d32">פטור</span></td>
+          <td>🔒 כן</td>
+          <td>הוני = פטור ממס כברירת מחדל</td>
+        </tr>
+        <tr>
+          <td>קרן השתלמות ≥ 6 שנים</td>
+          <td><span class="badge" style="background:#2e7d32">פטור</span></td>
+          <td>🔒 כן</td>
+          <td>הקופה הבשילה — פטור מלא</td>
+        </tr>
+        <tr>
+          <td>קרן השתלמות &lt; 6 שנים, אין חלופי</td>
+          <td><span class="badge" style="background:#c62828">35%</span></td>
+          <td>🔒 כן</td>
+          <td>צעירה מדי לפטור</td>
+        </tr>
+        <tr>
+          <td>קה"ש &lt; 6 שנים, יש קה"ש ≥ 6 בחברה אחרת</td>
+          <td><span class="badge">בחירת נציג</span></td>
+          <td>פתוח</td>
+          <td>אפשר לפעיל ותק חלופי לקבלת פטור</td>
+        </tr>
+        <tr>
+          <td>תגמולים/פיצויים רגיל</td>
+          <td><span class="badge">בחירת נציג</span></td>
+          <td>פתוח</td>
+          <td>אין חוק שאוכף ברירת מחדל</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="muted">המערכת אומרת בדיוק למה ננעל המיסוי — לא קוסם שחור.</p>
+  </section>
+
+  <!-- ============== Smart rules: docs ============== -->
+  <section>
+    <h2>בדיקת מסמכים נדרשים — אוטומטית</h2>
+    <p>לכל פעולה המערכת מציגה רשימה של מה צריך לצרף לבקשה לחברה:</p>
+    <ul>
+      <li><strong>תמיד:</strong> ת.ז (קדמי + אחורי או ספח), אישור ניהול חשבון</li>
+      <li><strong>תגמולים/פיצויים + לקוח מתחת ל-60:</strong> סיום העסקה <em>או</em> רצף מעסיקים
+        <ul><li>רצף תקף לאחר שנה — <strong>אך באלטשולר שחם והראל צריך 2 שנים</strong></li></ul>
+      </li>
+      <li><strong>פיצויים בלבד:</strong> טופס 161 / אישור מס פיצויים, ושחרור כספים אם פחות מ-4 חודשים מסיום העסקה</li>
+      <li><strong>לקוח מתחת ל-60 + מעסיק ללא 161:</strong> אישור תקופות ביטוח ומעסיקים מביטוח לאומי</li>
+      <li><strong>מעל גיל 60:</strong> כל מסמכי ההעסקה מתבטלים</li>
+    </ul>
+    <div class="callout info">
+      הרשימה מתעדכנת בכל לחיצה — מסמן מה חסר עם הסבר "למה" ליד כל פריט.
+    </div>
+  </section>
+
+  <!-- ============== Step 4 ============== -->
+  <section>
+    <span class="step-num">4</span>
+    <span class="step-title">תצוגה מקדימה + שמירה</span>
+    <img src="img/ui_step4_top.png" class="full" alt="תצוגה מקדימה">
+  </section>
+
+  <!-- ============== Generated form ============== -->
+  <section>
+    <h2>הטופס שנוצר — עמוד שער</h2>
+    <img src="img/form_page_1.png" class="full" alt="טופס מוצר - עמוד 1">
+  </section>
+
+  <section>
+    <h2>הטופס שנוצר — פעולה #1 (מגדל)</h2>
+    <img src="img/form_page_2.png" class="full" alt="טופס מוצר - עמוד 2">
+  </section>
+
+  <section>
+    <h2>הטופס שנוצר — פעולה #2 (עתודות)</h2>
+    <img src="img/form_page_3.png" class="full" alt="טופס מוצר - עמוד 3">
+  </section>
+
+  <!-- ============== Model review gate ============== -->
+  <section>
+    <h2>סקירת מודל — הגנה אחרונה לפני שליחה</h2>
+    <p>לפני שמירה הסופית המערכת בודקת:</p>
+    <div class="two-col">
+      <div>
+        <h3>בדיקות לוגיות (וודאי)</h3>
+        <ul>
+          <li>ת.ז זהה בין כל המסמכים</li>
+          <li>תאריכי לידה בעבר, לא בעתיד</li>
+          <li>סכומים לא שליליים</li>
+          <li>מספר קופה קיים בדוח המסלקה</li>
+          <li>כל פעולה עם חברה + סוג + מיסוי + סוג כספים</li>
+        </ul>
+      </div>
+      <div>
+        <h3>בדיקות מודל (LLM)</h3>
+        <ul>
+          <li>אין טקסט עברי משובש או הפוך</li>
+          <li>אין ספרות שהוחלפו או שגויות</li>
+          <li>אין שדות מולאו ב-"____" או placeholder</li>
+          <li>אין אנגלית בשדות עברית</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout">
+      <strong>שגיאות חוסמות שמירה.</strong> אזהרות דורשות אישור הנציג. הצגות אינפורמטיביות בלבד.
+    </div>
+  </section>
+
+  <!-- ============== Email routing ============== -->
+  <section>
+    <h2>ניתוב מייל אוטומטי</h2>
+    <p>לפי החברה + סוג המוצר, המערכת שולפת את כתובת המייל הנכונה:</p>
+    <table style="margin: 20px auto;">
+      <thead><tr><th>חברה</th><th>סוג קופה</th><th>כתובת מייל</th></tr></thead>
+      <tbody>
+        <tr><td>מגדל</td><td>קרן פנסיה</td><td>mokedpe@migdal.co.il</td></tr>
+        <tr><td>עתודות</td><td>קרן פנסיה</td><td>pensia@atudotvatika.co.il</td></tr>
+        <tr><td>מנורה</td><td>פנסיה</td><td>pensia@menoramivt.co.il</td></tr>
+        <tr><td>הפניקס</td><td>גמל</td><td>service_gemel@fnx.co.il</td></tr>
+        <tr><td>אלטשולר שחם</td><td>פנסיה</td><td>meshichotpension@altshul.co.il</td></tr>
+        <tr><td colspan="3" class="muted">... 18 חברות, 76 כתובות במאגר</td></tr>
+      </tbody>
+    </table>
+    <p class="muted">לחיצה על כתובת פותחת את המייל עם נושא + גוף מוכנים. צירוף ה-PDF — ידני (הדפדפן אוסר על צירוף אוטומטי).</p>
+  </section>
+
+  <!-- ============== Submissions list ============== -->
+  <section>
+    <h2>היסטוריית הגשות</h2>
+    <img src="img/ui_submissions.png" class="full" alt="הגשות שמורות">
+    <p class="muted">כל הגשה נשמרת ב-SQLite מקומית — נציג / תאריך / לקוח / סטטוס / קובץ PDF</p>
+  </section>
+
+  <!-- ============== How to install ============== -->
+  <section>
+    <h2>איך מתקינים?</h2>
+    <pre><code class="hljs bash">git clone https://github.com/tifult906-netizen/shemesh-ops-form
+cd shemesh-ops-form
+python -m venv .venv
+.venv\Scripts\activate           # Windows
+pip install -r requirements.txt
+pip install -e .
+
+# הרצה
+python -m shemesh_ops.web
+# → פתח את http://127.0.0.1:8000</code></pre>
+    <div class="callout info">
+      דרישות: Python 3.11+, פונט עברי TTF (אריאל מותקן כברירת מחדל ב-Windows).
+      ללא תלות בינארית — לא צריך GTK / wkhtmltopdf / Chromium.
+    </div>
+  </section>
+
+  <!-- ============== Vision model setup ============== -->
+  <section>
+    <h2>הוספת מודל ראייה מקומי</h2>
+    <p>כברירת מחדל המערכת רצה עם "מודל דמה" שעובד רק על הלקוח לדוגמה. לעבודה אמיתית:</p>
+    <pre><code class="hljs bash">
+# התקן Ollama: https://ollama.com/download
+ollama pull qwen2.5vl:7b           # מומלץ, עברית טובה, ~5GB
+# או: ollama pull llama3.2-vision:11b
+
+# הפעל את המערכת עם Ollama
+export SHEMESH_VISION=ollama
+export SHEMESH_VISION_MODEL=qwen2.5vl:7b
+python -m shemesh_ops.web</code></pre>
+    <div class="callout good">
+      <strong>פרטיות:</strong> כל הניתוח רץ על המחשב שלכם. נתוני לקוח לא יוצאים החוצה.
+    </div>
+  </section>
+
+  <!-- ============== Tutorial intro ============== -->
+  <section data-background-color="#1a4a8c">
+    <h1 style="color: white;">מדריך שימוש</h1>
+    <p style="color: #cfd8dc; font-size: 1.1em;">צעד-אחר-צעד לטיפול בלקוח</p>
+  </section>
+
+  <!-- ============== Tutorial: gather docs ============== -->
+  <section>
+    <h2>שלב הכנה: איסוף המסמכים מהלקוח</h2>
+    <p>בקשו מהלקוח את הקבצים הבאים — את כל ה-3 דוחות המסלקה אפשר לקבל בבקשה אחת:</p>
+    <ol>
+      <li><strong>תעודת זהות:</strong> צילום ברור משני צדדים (קדמי + אחורי לביומטרי; קדמי + ספח לישנה)</li>
+      <li><strong>אישור ניהול חשבון</strong> מהבנק (או צ'ק מבוטל)</li>
+      <li><strong>דוח יתרות תגמולים</strong> + <strong>דוח יתרות פיצויים</strong> + <strong>דוח מסלקה</strong>
+        מהמסלקה הפנסיונית — שלושתם מבקשה אחת
+      </li>
+      <li><strong>אישור תקופות ביטוח ומעסיקים</strong> מביטוח לאומי — רק אם הלקוח מתחת ל-60 ויש מעסיק חסר 161</li>
+    </ol>
+    <div class="callout">
+      <strong>טיפ:</strong> אם הלקוח מעל גיל 60, רוב מסמכי ההעסקה לא נדרשים — המערכת תגיד לכם.
+    </div>
+  </section>
+
+  <!-- ============== Tutorial: upload ============== -->
+  <section>
+    <span class="step-num">1</span>
+    <span class="step-title">פתחו את הכלי, גררו את כל הקבצים</span>
+    <div class="two-col" style="margin-top: 20px;">
+      <div>
+        <ol>
+          <li>פתחו את הכלי בכתובת <code>http://127.0.0.1:8000</code></li>
+          <li>גררו כל קובץ לתיבה המתאימה (או לחצו "בחירת קובץ")</li>
+          <li>לחצו "המשך לסקירת מידע"</li>
+          <li>תוך כ-30 שניות המערכת מחלצת הכל</li>
+        </ol>
+      </div>
+      <div>
+        <img src="img/ui_step1_upload.png" class="screenshot">
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== Tutorial: verify ============== -->
+  <section>
+    <span class="step-num">2</span>
+    <span class="step-title">סקירה ותיקון (אם צריך)</span>
+    <ul>
+      <li>וודאו ששם, ת.ז, ותאריך לידה תואמים את תעודת הזהות</li>
+      <li>הוסיפו טלפון נייד של הלקוח</li>
+      <li>בדקו שפרטי הבנק נכונים — קוד בנק / סניף / חשבון / IBAN</li>
+      <li>סקרו את טבלת הקופות — בדקו שכל הקופות מופיעות עם היתרות הנכונות</li>
+      <li>סקרו את טבלת הפיצויים — וודאו שכל המעסיקים מזוהים נכון</li>
+      <li>לחצו "המשך להגדרת פעולות"</li>
+    </ul>
+    <div class="callout">
+      <strong>שדה ריק או שגוי?</strong> פשוט הקלידו עליו — כל השדות ניתנים לעריכה.
+    </div>
+  </section>
+
+  <!-- ============== Tutorial: configure ============== -->
+  <section>
+    <span class="step-num">3</span>
+    <span class="step-title">הגדרת פעולות</span>
+    <ol>
+      <li><strong>מלאו פרטי כיסוי:</strong> שם נציג, סכום העסקה, אמצעי תשלום</li>
+      <li><strong>סמנו את המסמכים שצירפתם:</strong> תוז קדמי, אחורי, אישור בנק, וכו'</li>
+      <li><strong>הוסיפו פעולה</strong> ולחצו "+ הוסף פעולה"</li>
+      <li><strong>בחרו לכל פעולה:</strong>
+        <ul>
+          <li>חברת ביטוח (מקור הכסף)</li>
+          <li>סוג מוצר ומספר קופה (מהרשימה הנגללת)</li>
+          <li>סוג כספים (תגמולים / פיצויים)</li>
+          <li>מיסוי — אם המערכת נעלה אותו, הסבר יוצג</li>
+        </ul>
+      </li>
+      <li><strong>אם פיצויים:</strong> לחצו "⤵ טען מעסיקים מדוח פיצויים" — הם ימולאו מאליהם</li>
+      <li><strong>הוסיפו הערות</strong> אם רוצים מסר ספציפי לחברה</li>
+      <li><strong>חזרו על השלבים</strong> לכל פעולה נוספת (עד 6)</li>
+      <li>לחצו "המשך לתצוגה מקדימה"</li>
+    </ol>
+  </section>
+
+  <!-- ============== Tutorial: preview + save ============== -->
+  <section>
+    <span class="step-num">4</span>
+    <span class="step-title">תצוגה מקדימה ושמירה</span>
+    <ol>
+      <li>סרקו את הטופס המוצר — דף שער + דף לכל פעולה</li>
+      <li>קראו את "סקירת מודל" למעלה — אם יש שגיאות, הם יחסמו את השמירה</li>
+      <li>אם הכל נראה טוב — לחצו <strong>"✓ שמור הגשה"</strong></li>
+      <li>או הורידו ידנית עם <strong>"הורד PDF"</strong> ושמרו במקום הרצוי</li>
+      <li>סקרו את "נמענים מומלצים" — לחיצה על כתובת מייל פותחת את אאוטלוק/ג'מייל עם נושא מוכן</li>
+      <li>צרפו ידנית את ה-PDF (הדפדפן אוסר על צירוף אוטומטי) ושלחו</li>
+    </ol>
+    <div class="callout good">
+      ההגשה נשמרה אצלכם בהיסטוריה — תוכלו תמיד לראות ולהוריד שוב ב-/submissions
+    </div>
+  </section>
+
+  <!-- ============== Things to know ============== -->
+  <section>
+    <h2>טיפים ודברים שכדאי לדעת</h2>
+    <ul>
+      <li><strong>הנציג הוא הקובע האחרון:</strong> כל ערך שהמערכת חילצה ניתן לעריכה. המודל יכול לטעות — אתם רואים הכל לפני הפקת ה-PDF.</li>
+      <li><strong>החזרה תמיד אפשרית:</strong> הניווט בראש הדף מאפשר לחזור לכל שלב ולתקן.</li>
+      <li><strong>"התחל מחדש" מוחק הכל:</strong> אם רוצים לעבוד עם לקוח אחר.</li>
+      <li><strong>שגיאות נדחות:</strong> כל שגיאה (ת.ז שונה בין מסמכים, סכום שלילי, וכו') תחסום את השמירה — תקנו ונסו שוב.</li>
+      <li><strong>אזהרות לא חוסמות:</strong> למשל "סכום שנגבה גדול מסכום כולל" — אם זה בכוונה, פשוט המשיכו.</li>
+      <li><strong>לפעולה אחת — מעסיק אחד או יותר:</strong> אם משיכים פיצויים מ-3 מעסיקים מאותה קופה, זאת עדיין פעולה אחת.</li>
+    </ul>
+  </section>
+
+  <!-- ============== What's coming ============== -->
+  <section>
+    <h2>מה צפוי בעתיד</h2>
+    <ul>
+      <li><strong>שליחה אוטומטית של מייל:</strong> במקום לחץ-לפתוח-וצרף, יישלח אוטומטית עם הטופס מצורף</li>
+      <li><strong>טעינת טיוטה:</strong> פתיחת הגשה שמורה לעריכה נוספת</li>
+      <li><strong>אישור גישה למשתמשים מרובים:</strong> כל נציג עם חשבון משלו, בכניסה מוגנת</li>
+      <li><strong>הוספת פעולות נוספות:</strong> הלוואות, אובדן כושר עבודה, כספי נפטר, שארים</li>
+      <li><strong>חיבור למסלקה ישירות:</strong> במקום שהלקוח יבקש דוחות — המערכת תבקש מטעמו</li>
+    </ul>
+  </section>
+
+  <!-- ============== Summary ============== -->
+  <section data-background-color="#1a4a8c">
+    <h1 style="color: white;">סיכום</h1>
+    <div style="color: white; text-align: right; max-width: 800px; margin: 0 auto;">
+      <p style="font-size: 0.9em;"><strong>מה הכלי עושה:</strong></p>
+      <ul style="color: white;">
+        <li>חוסך 30-60 דקות פר לקוח</li>
+        <li>מבטל טעויות הקלדה ב-ת.ז, חשבונות, ושמות מעסיקים בעברית</li>
+        <li>מאכף אוטומטית את חוקי המס וקוי המסמכים (אלטשולר 2 שנים, גיל 60, הוני פטור, 6 שנים בקה"ש)</li>
+        <li>שומר היסטוריה של כל הגשה</li>
+        <li>הכל מקומי — נתוני לקוח לא יוצאים מהמחשב</li>
+      </ul>
+      <p style="text-align: center; margin-top: 30px; font-size: 0.8em; color: #cfd8dc;">
+        קוד המקור:
+        <a style="color: white;" href="https://github.com/tifult906-netizen/shemesh-ops-form">github.com/tifult906-netizen/shemesh-ops-form</a>
+      </p>
+    </div>
+  </section>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script>
+  Reveal.initialize({
+    rtl: true,
+    hash: true,
+    slideNumber: 'c/t',
+    transition: 'slide',
+    width: 1200,
+    height: 760,
+    margin: 0.05,
+    minScale: 0.4,
+    maxScale: 1.4,
+    plugins: [RevealHighlight],
+  });
+</script>
+</body>
+</html>
