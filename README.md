@@ -91,7 +91,7 @@ JSON of the unified ClientPicture is written to stdout; status messages to stder
 
 ## Vision-model setup (real local inference)
 
-The mock vision extractor only returns canned values for the example customer (אורי בן פורת). For real clients you need a local vision model:
+The mock vision extractor only returns canned values for the example customer (ישראל ישראלי). For real clients you need a local vision model:
 
 ### Option 1: Ollama (recommended)
 
@@ -131,7 +131,7 @@ src/shemesh_ops/
 │   └── bl_history.py
 ├── vision/                  # Vision extractors (LLM-backed)
 │   ├── base.py              # VisionExtractor ABC
-│   ├── mock.py              # canned responses for אורי בן פורת
+│   ├── mock.py              # canned synthetic responses (no real data)
 │   ├── ollama_backend.py    # real local inference
 │   └── extractors.py        # high-level helpers (ID card, label-fill)
 ├── unifier.py               # Combine 5 parsers → ClientPicture, cross-refs
@@ -161,7 +161,14 @@ insurance_companies.csv      # 18 companies × per-product emails
 python -m pytest
 ```
 
-50 tests across 10 files. All run against the example fixture customer (אורי בן פורת) — no network, no GPU required.
+The tests covering pure logic (rules, doc checklist, review, storage,
+synthetic ClientPicture construction) run without any fixture files.
+
+Tests covering PDF parsing, the unifier, the renderer, and the web UI
+require local fixture PDFs that are not committed to the repo for
+privacy reasons. To re-enable those, drop a customer's 5 source PDFs +
+2 ID photos into `tests/fixtures/<customer_name>/` and write a small
+conftest that points the existing tests at that directory.
 
 ## Architecture decisions worth knowing
 
@@ -185,4 +192,4 @@ python -m pytest
 
 ## License & contact
 
-Internal Shemesh tooling. Built for and with Avihay Osipov.
+Internal Shemesh tooling.

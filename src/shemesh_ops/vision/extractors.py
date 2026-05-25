@@ -92,7 +92,7 @@ def extract_id_card(
 
 BANK_INSTRUCTION = """You are reading an Israeli bank account confirmation (אישור ניהול חשבון).
 Extract these two Hebrew fields exactly as printed:
-  holder_name (שם בעל החשבון, e.g. "בן פורת אורי"),
+  holder_name (שם בעל החשבון),
   address (כתובת החשבון).
 Use null if a field is not present.
 """
@@ -161,7 +161,7 @@ report (דוח מסלקה). There are {n} funds across pages 3-6 in source order
 right-to-left in the source).
 
 For each fund in source order, return:
-  management_company (שם חברה מנהלת, e.g. "מגדל"),
+  management_company (שם חברה מנהלת, e.g. "חברה דוגמה ב"),
   status (סטטוס — "פעיל" / "לא פעיל"),
   product_type_label (סוג מוצר פנסיוני, e.g. "פנסיה חדשה מקיפה" or "קרן השתלמות").
 

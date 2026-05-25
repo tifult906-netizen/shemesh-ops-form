@@ -12,12 +12,12 @@ from shemesh_ops.storage import SubmissionStore
 
 def _picture() -> ClientPicture:
     return ClientPicture(
-        identity=ClientIdentity(full_name="אורי בן פורת", id_number="029742590"),
+        identity=ClientIdentity(full_name="ישראל ישראלי", id_number="999999999"),
         bank=BankAccount(
-            holder_name="בן פורת אורי", id_number="029742590",
-            bank_code="12", branch="549", account_number="383654",
+            holder_name="ישראלי ישראל", id_number="999999999",
+            bank_code="12", branch="549", account_number="9999999",
         ),
-        id_card=IDCard(full_name="אורי בן פורת", id_number="029742590"),
+        id_card=IDCard(full_name="ישראל ישראלי", id_number="999999999"),
     )
 
 
@@ -25,13 +25,13 @@ def _form() -> OperationForm:
     cover = OperationFormCover(
         form_date=date(2026, 3, 15),
         rep_name="אוהד",
-        client_first_name="אורי",
-        client_last_name="בן פורת",
-        client_id="029742590",
+        client_first_name="ישראל",
+        client_last_name="ישראלי",
+        client_id="999999999",
         amount_total=Decimal("2000"),
     )
     op = OperationDetail(
-        insurance_company="מגדל", product_type="pension", kupa_number="29742590",
+        insurance_company="חברה דוגמה ב", product_type="pension", kupa_number="999999999",
         money_types=["tagmulim"], tax_mode="full",
     )
     return OperationForm(cover=cover, operations=[op])
@@ -46,7 +46,7 @@ def test_save_and_get(tmp_path):
 
     row = store.get(sid)
     assert row is not None
-    assert row["client_id"] == "029742590"
+    assert row["client_id"] == "999999999"
     assert row["rep_name"] == "אוהד"
     assert row["status"] == "draft"
     assert row["pdf_path"].endswith("form.pdf")

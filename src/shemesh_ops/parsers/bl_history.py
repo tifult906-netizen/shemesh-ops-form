@@ -36,8 +36,8 @@ CLIENT_ID_RE = re.compile(r"(\d{7,8})-(\d)")
 
 
 def _normalize_client_id(raw: str) -> str:
-    """BL writes client ID as e.g. '2974259-0' (= 0-9524792 reversed-digit)
-    which is the client's true ID '29742590' with a check-digit dash."""
+    """BL writes the client ID with a check-digit dash (e.g. 'XXXXXXX-X');
+    strip it and left-pad to 9 digits if needed."""
     raw = raw.replace("-", "").replace(" ", "")
     if len(raw) == 8:
         raw = "0" + raw

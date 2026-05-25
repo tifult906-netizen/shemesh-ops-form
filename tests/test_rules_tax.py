@@ -160,30 +160,3 @@ def test_find_kahash_override_picks_oldest():
     assert override.fund.policy_number == "A"
 
 
-# --- End-to-end against the real example customer -----------------------
-
-
-def test_real_customer_kahash_under_6_years_with_no_override():
-    """אורי בן פורת has 2 קה"ש funds, both started in 2024-2025 (<6 years).
-    No older קה"ש exists → both should lock to full-tax."""
-    from shemesh_ops.unifier import ExtractionInputs, unify
-    from shemesh_ops.vision import MockVisionExtractor
-
-    ROOT = Path(__file__).resolve().parents[1]
-    result = unify(
-        ExtractionInputs(
-            bank=ROOT / "אישור ניהול חשבון.pdf",
-            tagmulim=ROOT / "דוח יתרות תגמולים.pdf",
-            pitsuyim=ROOT / "דוח יתרות פיצויים.pdf",
-            maslaka=ROOT / "דוח מסלקה.pdf",
-            bl_history=ROOT / "אישור תקופות ביטוח ומעסיקים.pdf",
-            id_front=ROOT / "WhatsApp Image 2026-05-24 at 13.45.41.jpeg",
-            id_back=ROOT / "WhatsApp Image 2026-05-24 at 13.45.41 (1).jpeg",
-        ),
-        vision=MockVisionExtractor(),
-    )
-    today = date(2026, 5, 24)
-    op = OperationDetail(kupa_number="44975819", product_type="study_fund", money_types=["tagmulim"])
-    rec = compute_tax_recommendation(result.picture, op, as_of=today)
-    assert rec.recommended_mode == "full"
-    assert rec.locked is True  # No override available since both קה"ש are young

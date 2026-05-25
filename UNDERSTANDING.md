@@ -44,7 +44,7 @@
 
 ## 2. Scope: money withdrawal (תגמולים and/or פיצויים)
 
-**v3 scope (after Avihay's corrections):** the tool handles **withdrawal** operations. Out of scope: הלוואה, אובדן כושר, שארים, נפטר. **In scope:**
+**v3 scope (after 's corrections):** the tool handles **withdrawal** operations. Out of scope: הלוואה, אובדן כושר, שארים, נפטר. **In scope:**
 
 | Product container (סוג מוצר) | Money types in scope          |
 |------------------------------|-------------------------------|
@@ -141,26 +141,26 @@ This is pure withdrawal → money lands in the client's bank account. The destin
 ## 4. What each document gives us (extraction targets)
 
 ### 4a. Israeli Biometric ID (`תעודת זהות ביומטרית`) – **2 photos, vision-LLM only**
-From this example (אורי בן פורת):
+From this example (ישראל ישראלי):
 
 | Side  | Fields                                                                                       |
 |-------|---------------------------------------------------------------------------------------------|
-| Front | שם פרטי (אורי), שם משפחה (בן פורת), ת"ז (029742590), תאריך לידה (15.02.1973), תאריך הנפקה (7.9.2022), תוקף (04.09.2032) |
-| Back  | שם האב (יוסף), שם האם (מיכל), שם הסב (ראובן), מקום לידה (ישראל), מעמד (אזרחות ישראלית), מין (זכר), מספר הכרטיס (011310248) |
+| Front | שם פרטי (ישראל), שם משפחה (ישראלי), ת"ז (999999999), תאריך לידה (01.01.1980), תאריך הנפקה (1.1.2020), תוקף (01.01.2030) |
+| Back  | שם האב (אבא), שם האם (אמא), שם הסב (סבא), מקום לידה (ישראל), מעמד (אזרחות ישראלית), מין (זכר), מספר הכרטיס (000000000) |
 
 > ⚠️ **Address is NOT on the biometric ID** — newer Israeli ID cards omit it. Address comes from the **bank confirmation** instead (or from the old-style ספח if the customer has one).
 
 ### 4b. אישור ניהול חשבון (Bank confirmation) – **PDF with selectable text**
-- שם חשבון (בן פורת אורי)
-- בנק (12 = הפועלים), סניף (549), חשבון (383654)
-- IBAN (IL090125490000000383654)
-- **כתובת החשבון** (הפרדס 8, מולדת) ← address source
+- שם חשבון (ישראלי ישראל)
+- בנק (12 = הפועלים), סניף (999), חשבון (9999999)
+- IBAN (IL000000000000000000000)
+- **כתובת החשבון** (רחוב הדוגמה 1, עיר) ← address source
 - Issue date of confirmation (17/03/2026)
 
 ### 4c. דוח יתרות תגמולים (Tagmulim balances) – **PDF with selectable text**
 Per-fund breakdown:
-- שם קופה (e.g. קרן הפנסיה עתודות)
-- מספר תיק ניכויים (e.g. 935947184)
+- שם קופה (e.g. קרן פנסיה דוגמה א)
+- מספר תיק ניכויים (e.g. 990000001)
 - מעמד עמית (עצמאי / שכיר / מנהלת ...)
 - Per-bucket balances: הוני / קיצבתי לפני 2000 / לפני 1997 / קצבתי חייב
 - סה"כ צבירה
@@ -170,10 +170,10 @@ Per-fund breakdown:
 
 ### 4d. דוח יתרות פיצויים (Pitsuyim balances) – **PDF with selectable text**
 Per-fund × per-employer breakdown:
-- שם קופה (e.g. מגדל מקפת אישית)
+- שם קופה (e.g. קרן פנסיה דוגמה ב)
 - מספר תיק ניכויים
-- שם מעסיק (e.g. רימון פיתוח וכבישים בעמ)
-- מספר מזהה מעסיק (e.g. 512255944)
+- שם מעסיק (e.g. מעסיק דוגמה ב)
+- מספר מזהה מעסיק (e.g. 500000001)
 - תאריך תחילת העסקה
 - 4 amount columns: ברצף קצבה עד 31.12.1999 / ברצף קצבה מ-1.1.2000 / ברצף פיצויים או רצף מעסיקים / שווי פיצויים למעסיק
 - Grand total (₪30,085 in example)
@@ -195,7 +195,7 @@ Per-fund × per-employer breakdown:
 
 **Decision: require all 3 reports** (מסלקה + תגמולים + פיצויים). Cost to client = 0 (one query).
 
-**Extraction caveat — reversed Hebrew on pages 1-8:** the issuing tool emits Hebrew text with letters reversed within each word (e.g. "מגדל" stored as "לדגמ"). Numbers, dates, IDs extract cleanly. Hebrew labels need a per-token un-reverser pass. Pages 9+ are normal. Plan: parse with pdfplumber + a `reverse_hebrew_tokens(text)` helper that flips runs of Hebrew chars within each token. Fallback if that gets too brittle: render page-to-PNG via pymupdf and vision-LLM the labels.
+**Extraction caveat — reversed Hebrew on pages 1-8:** the issuing tool emits Hebrew text with letters reversed within each word (e.g. "חברה דוגמה ב" stored as "לדגמ"). Numbers, dates, IDs extract cleanly. Hebrew labels need a per-token un-reverser pass. Pages 9+ are normal. Plan: parse with pdfplumber + a `reverse_hebrew_tokens(text)` helper that flips runs of Hebrew chars within each token. Fallback if that gets too brittle: render page-to-PNG via pymupdf and vision-LLM the labels.
 
 ### 4f. אישור תקופות ביטוח ומעסיקים (National Insurance employment history) – **PDF with selectable text**, conditional
 Multi-page PDF from ביטוח לאומי. Two tables to extract:
@@ -214,7 +214,7 @@ Multi-page PDF from ביטוח לאומי. Two tables to extract:
 
 → **Use:** when a פיצויים withdrawal targets an employer that lacks 161 / שחרור העסקה, this doc is required as the proof-of-employment fallback. The pitsuyim report shows the *money*; this doc shows the *employment relationship existed*.
 
-→ **Cross-reference logic the tool can run automatically:** match `מספר מזהה מעסיק` from the pitsuyim report against `תיק המעסיק` here. Caveat: the IDs may differ in format/length (the pitsuyim doc shows 9-digit מזהה, BL shows 11-digit תיק). For the example customer, pitsuyim has `512255944` (רימון פיתוח וכבישים) and BL has `90210014800` (בראל רימון תשתיות בעמ) — same company, different IDs. So fuzzy-match on **company name** first, with `תיק המעסיק` as a tiebreaker.
+→ **Cross-reference logic the tool can run automatically:** match `מספר מזהה מעסיק` from the pitsuyim report against `תיק המעסיק` here. Caveat: the IDs may differ in format/length (the pitsuyim doc shows 9-digit מזהה, BL shows 11-digit תיק). For the example customer, pitsuyim has `500000001` (מעסיק דוגמה ב) and BL has `90210014800` (מעסיק דוגמה ב בעמ) — same company, different IDs. So fuzzy-match on **company name** first, with `תיק המעסיק` as a tiebreaker.
 
 > ⚠️ The PDF's text appears right-to-left reversed when extracted naively (visible in the bash extraction we did). Will need RTL post-processing — pdfplumber + a Hebrew-aware reorder pass. Worth noting that the financial PDFs (bank, תגמ׳, פיצ׳) extract cleanly; only this one's layout is more painful.
 
@@ -237,7 +237,7 @@ From the example `טופס תפעול פידיון תגמולים.pdf` — 1 cov
 ### Per פעולה (1 to 6 separate operations within one form)
 | Section            | Fields                                                                                             |
 |--------------------|----------------------------------------------------------------------------------------------------|
-| חברת ביטוח         | text (e.g. מגדל, עתודות פנסיה ותיקה)                                                                |
+| חברת ביטוח         | text (e.g. חברה דוגמה ב, חברה דוגמה א)                                                                |
 | סוג מוצר           | one of: קרן פנסיה / קופת גמל / פוליסה / קרן השתלמות / חסכון לילד                                    |
 | מספר קופה          | from מסלקה report                                                                                  |
 | וותק הקופה         | start date                                                                                         |
@@ -246,7 +246,7 @@ From the example `טופס תפעול פידיון תגמולים.pdf` — 1 cov
 | מעסיקים            | rows of (שם מעסיק, תגמולים? [מלוא הסכום / על סך X], פיצויים? [מלוא הסכום / על סך X], מס מלא?, פטור מס?) |
 | הערות              | per-פעולה free text (e.g. "מבקש למשוך תגמולים במס מלא מ-...")                                       |
 
-**The example used 2 פעולה pages**: one for מגדל קרן פנסיה (employers: מולדת + רימון), one for עתודות פנסיה ותיקה (employer: טל-נטפים). All withdrawals were תגמולים / מס מלא.
+**The example used 2 פעולה pages**: one for חברה דוגמה ב קרן פנסיה (employers: עיר + דוגמה-ב), one for חברה דוגמה א (employer: דוגמה-ה). All withdrawals were תגמולים / מס מלא.
 
 ---
 
@@ -281,22 +281,22 @@ Privacy: all three steps run locally (vision LLM via `transformers` or `vllm`, P
 │    [+ dynamic op-specific docs]            │
 ├────────────────────────────────────────────┤
 │ 3. סקירת מידע שחולץ (לקוח + בנק = יעד הכסף)│  ← bank from confirmation = destination, no extra field
-│    שם:     אורי בן פורת        [✎ ערוך]    │
-│    ת"ז:    029742590           [✎]         │
-│    כתובת: הפרדס 8, מולדת        [✎]        │
+│    שם:     ישראל ישראלי        [✎ ערוך]    │
+│    ת"ז:    999999999           [✎]         │
+│    כתובת: רחוב הדוגמה 1, עיר        [✎]        │
 │    בנק (יעד התשלום):                       │
-│         הפועלים 12 / סניף 549 / 383654 [✎] │
+│         הפועלים 12 / סניף 549 / 9999999 [✎] │
 ├────────────────────────────────────────────┤
 │ 4. פעולה #1                       [+ הוסף] │
-│    חברת ביטוח (מקור): [מגדל ▾]             │
+│    חברת ביטוח (מקור): [חברה דוגמה ב ▾]             │
 │    סוג מוצר:   [קרן פנסיה ▾]              │
-│    קופה:       [935967851 ▾]              │
+│    קופה:       [990000002 ▾]              │
 │    סוג כסף:    ☑ תגמולים  ☑ פיצויים        │  ← checkboxes — both allowed
 │    מיסוי:      [מס מלא ▾]                 │  ← auto-locks to "פטור" if הוני bucket
 │    מעסיקים מהדוח:                          │  ← split into 2 sub-tables when both money types are checked
-│      ☑ רימון פיתוח – פיצ׳ ₪13,805         │
-│      ☐ מולדת כפר בני ברית – פיצ׳ ₪0        │
-│      ☐ טל-נטפים ברמה – פיצ׳ ₪6,748        │
+│      ☑ דוגמה-ב פיתוח – פיצ׳ ₪13,805         │
+│      ☐ מעסיק דוגמה א – פיצ׳ ₪0        │
+│      ☐ מעסיק דוגמה ה – פיצ׳ ₪6,748        │
 │    [קה"ש בלבד: זוהה ותק <6 שנים. השתמש    │
 │     בוותק מ-[שם קופה אחרת] (8 שנים)? ▢ ]  │
 │    הערות: [_______________________]        │
@@ -323,7 +323,7 @@ Notes:
 ## 8. Settled answers (after round 2)
 
 ### Insurance companies — **18 companies**, full list in `insurance_companies.csv`
-מנורה, אלטשולר שחם, מיטב דש, הפניקס, מור, רום, הראל, עמיתים (/ מבטחים), כלל, מגדל, גל/כלנית, מינהל, אינפיניטי, קו הבריאות, עתודות, למורים וגננות, אנליסט, ילין לפידות.
+מנורה, אלטשולר שחם, מיטב דש, הפניקס, מור, רום, הראל, עמיתים (/ מבטחים), כלל, חברה דוגמה ב, גל/כלנית, מינהל, אינפיניטי, קו הבריאות, חברה דוגמה א, למורים וגננות, אנליסט, ילין לפידות.
 
 Bonus: the CSV maps **(company × סוג קופה) → email address** — so once we know the company and the product type, we know exactly which inbox the form should be sent to. This is a free automation hook for "Step 5: deliver" later.
 

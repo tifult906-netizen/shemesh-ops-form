@@ -79,7 +79,7 @@ MaslakaProductCategory = Literal[
 
 
 class MaslakaFund(BaseModel):
-    management_company: str  # e.g. "מגדל"
+    management_company: str  # e.g. "חברה דוגמה ב"
     product_category: MaslakaProductCategory
     product_type_label: Optional[str] = None  # e.g. "פנסיה חדשה מקיפה"
     policy_number: str
