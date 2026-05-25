@@ -106,8 +106,10 @@ Then open `http://127.0.0.1:8000` in the browser and walk through the 4 steps.
 
 Configuration env vars:
 - `SHEMESH_HOST`, `SHEMESH_PORT` — bind address (default 127.0.0.1:8000)
-- `SHEMESH_VISION` — `mock` | `ollama` | `none` (default `mock`)
-- `SHEMESH_VISION_MODEL` — Ollama model tag (default `qwen2.5vl:7b`)
+- `SHEMESH_VISION` — `mock` | `ollama` | `openai` | `none` (default `mock`)
+- `SHEMESH_VISION_MODEL` — model tag for the active backend
+  (Ollama default: `qwen2.5vl:7b`; OpenAI default: `gpt-4o-mini`)
+- `OPENAI_API_KEY` (or `SHEMESH_OPENAI_KEY`) — required when `SHEMESH_VISION=openai`
 - `SHEMESH_DB` — SQLite path (default `~/.shemesh-ops/submissions.db`)
 - `SHEMESH_SESSION_ROOT` — upload session dir (default `~/.shemesh-ops/sessions`)
 - `SHEMESH_FONT_PATH`, `SHEMESH_FONT_BOLD_PATH` — Hebrew font TTF paths

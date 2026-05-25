@@ -131,8 +131,10 @@
             <label>מעסיקים (לפעולה זו)</label>
             <table>
               <thead><tr>
-                <th>שם מעסיק</th><th>תגמולים – מלוא הסכום</th><th>תגמולים – על סך</th>
-                <th>פיצויים – מס מלא</th><th>פיצויים – פטור מס</th>
+                <th>שם מעסיק</th>
+                <th>מיסוי</th>
+                <th>תגמולים – מלוא הסכום</th>
+                <th>תגמולים – על סך</th>
               </tr></thead>
               <tbody>
               {% set this_op_idx = loop.index0 %}
@@ -143,19 +145,26 @@
                   <td><input type="text" name="op_{{ this_op_idx }}_emp_{{ loop.index0 }}_name"
                              value="{{ emp.employer_name if emp else '' }}" style="width:100%"
                              list="emp-list-{{ this_op_idx }}"></td>
+                  <td>
+                    <select name="op_{{ this_op_idx }}_emp_{{ loop.index0 }}_tax_mode" style="width:110px">
+                      <option value="">— כברירת מחדל —</option>
+                      <option value="full"    {% if emp and emp.tax_mode=='full' %}selected{% endif %}>מס מלא</option>
+                      <option value="partial" {% if emp and emp.tax_mode=='partial' %}selected{% endif %}>מס חלקי</option>
+                      <option value="exempt"  {% if emp and emp.tax_mode=='exempt' %}selected{% endif %}>פטור ממס</option>
+                    </select>
+                  </td>
                   <td><input type="checkbox" name="op_{{ this_op_idx }}_emp_{{ loop.index0 }}_tag_full"
                              {% if emp and emp.tagmulim_full %}checked{% endif %}></td>
                   <td><input type="text" name="op_{{ this_op_idx }}_emp_{{ loop.index0 }}_tag_amount"
                              value="{{ emp.tagmulim_amount if emp and emp.tagmulim_amount else '' }}"
                              style="width:90px"></td>
-                  <td><input type="checkbox" name="op_{{ this_op_idx }}_emp_{{ loop.index0 }}_pit_full_tax"
-                             {% if emp and emp.pitsuyim_full_tax %}checked{% endif %}></td>
-                  <td><input type="checkbox" name="op_{{ this_op_idx }}_emp_{{ loop.index0 }}_pit_exempt"
-                             {% if emp and emp.pitsuyim_tax_exempt %}checked{% endif %}></td>
                 </tr>
               {% endfor %}
               </tbody>
             </table>
+            <p class="muted" style="font-size: 11px; margin-top: 4px;">
+              "כברירת מחדל" משתמש בבחירת המיסוי של הפעולה למעלה. מילוי כאן מבטל אותה רק עבור המעסיק הזה.
+            </p>
             <datalist id="emp-list-{{ this_op_idx }}">
               {% for e in available_employers %}
                 <option value="{{ e.employer_name }}">

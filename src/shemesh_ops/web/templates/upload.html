@@ -34,10 +34,10 @@
     </div>
 
     <div class="row">
-      <div class="field"><label>אישור ניהול חשבון</label>
-        <div class="dropzone" data-field="bank" data-accept="pdf">
-          <input type="file" name="bank" accept="application/pdf" required>
-          <div class="dropzone-hint">גרור PDF לכאן או לחץ לבחירה</div>
+      <div class="field"><label>אישור ניהול חשבון <span class="muted">(PDF או תמונה)</span></label>
+        <div class="dropzone" data-field="bank" data-accept="pdf_or_image">
+          <input type="file" name="bank" accept="application/pdf,image/*" required>
+          <div class="dropzone-hint">גרור PDF או צילום לכאן או לחץ לבחירה</div>
         </div>
       </div>
       <div class="field"><label>דוח יתרות תגמולים</label>
@@ -154,8 +154,11 @@ function bindDropzone(el) {
     hint.textContent = 'גרור לכאן או לחץ לבחירה';
   }
   function fileMatches(file) {
-    if (accept === 'image') return file.type.startsWith('image/');
-    if (accept === 'pdf')   return file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+    const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+    const isImage = file.type.startsWith('image/');
+    if (accept === 'image') return isImage;
+    if (accept === 'pdf')   return isPdf;
+    if (accept === 'pdf_or_image') return isPdf || isImage;
     return true;
   }
 

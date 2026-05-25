@@ -32,6 +32,17 @@ _RESPONSES: dict[str, dict] = {
         "holder_name": "ישראלי ישראל",
         "address": "רחוב הדוגמה 1, עיר",
     },
+    "bank_full": {
+        "holder_name": "ישראלי ישראל",
+        "id_number": "999999999",
+        "bank_code": "12",
+        "bank_name": "הפועלים",
+        "branch": "999",
+        "account_number": "9999999",
+        "iban": "IL000000000000000000000",
+        "address": "רחוב הדוגמה 1, עיר",
+        "issue_date": "2026-01-01",
+    },
     "tagmulim_labels": [
         {"kupa_name": "קרן פנסיה דוגמה א", "member_status": "עצמאי"},
         {"kupa_name": "קרן פנסיה דוגמה א", "member_status": "שכיר"},

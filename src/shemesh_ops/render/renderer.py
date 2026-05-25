@@ -444,7 +444,17 @@ def _render_operation_page(c: rl_canvas.Canvas, form: OperationForm, op: Operati
     while len(rows) < 8:
         rows.append(EmployerLine(employer_name=""))
 
+    op_tax_default = op.tax_mode if op else None
     for emp in rows:
+        # Resolve the effective tax mode for this employer: per-employer
+        # override > operation default > legacy booleans.
+        eff_tax = emp.tax_mode or op_tax_default
+        if eff_tax is None:
+            if emp.pitsuyim_full_tax:
+                eff_tax = "full"
+            elif emp.pitsuyim_tax_exempt:
+                eff_tax = "exempt"
+
         x_right = MARGIN + inner_w
         x_left = x_right - emp_col_w
         _rect(c, x_left, y, emp_col_w, 26)
@@ -462,10 +472,12 @@ def _render_operation_page(c: rl_canvas.Canvas, form: OperationForm, op: Operati
         x_right = x_left
         x_left = x_right - pit_col_w
         _rect(c, x_left, y, pit_col_w, 26)
-        _text(c, x_left + 18, y + 5, pit_col_w / 2 - 22, 14, "מס מלא", size=8, align="center")
-        _checkbox(c, x_left + 6, y + 17, emp.pitsuyim_full_tax, size=10)
-        _text(c, x_left + pit_col_w / 2 + 14, y + 5, pit_col_w / 2 - 18, 14, "פטור מס", size=8, align="center")
-        _checkbox(c, x_left + pit_col_w / 2 + 2, y + 17, emp.pitsuyim_tax_exempt, size=10)
+        # Render 3 mini-checkboxes for the per-employer tax mode.
+        third = pit_col_w / 3
+        for i, (label, key) in enumerate([("מס מלא", "full"), ("חלקי", "partial"), ("פטור", "exempt")]):
+            cell_left = x_right - (i + 1) * third
+            _text(c, cell_left + 18, y + 5, third - 22, 14, label, size=8, align="center")
+            _checkbox(c, cell_left + 4, y + 17, eff_tax == key, size=10)
         y += 26
 
     y += 10

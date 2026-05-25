@@ -98,6 +98,24 @@ Use null if a field is not present.
 """
 
 
+BANK_FULL_INSTRUCTION = """You are reading an Israeli bank account confirmation (אישור ניהול חשבון)
+that may be a photo, screenshot, or scanned page. Extract every field:
+
+  holder_name     (שם בעל החשבון, Hebrew exactly as printed)
+  id_number       (מספר ת"ז של בעל החשבון, 9 digits with leading zero if any)
+  bank_code       (קוד בנק / מספר בנק — 2-3 digits, e.g. 12 for הפועלים, 10 לאומי)
+  bank_name       (שם הבנק בעברית, e.g. "הפועלים", "לאומי")
+  branch          (מספר סניף — 3-4 digits)
+  account_number  (מספר חשבון — 4-8 digits)
+  iban            (קוד IBAN, starts with IL and is 22-23 chars total)
+  address         (כתובת בעל החשבון בעברית)
+  issue_date      (תאריך הפקת המסמך, ISO YYYY-MM-DD)
+
+Use null for any field that isn't visible. Don't invent values.
+Return a JSON object with exactly these keys.
+"""
+
+
 def fill_bank_labels(bank: BankAccount, pdf_path: Path | str, vision: VisionExtractor) -> None:
     pages = render_pdf_pages(pdf_path, [0])
     raw = vision.extract(images=pages, instruction=BANK_INSTRUCTION, task_name="bank_labels")
@@ -105,6 +123,28 @@ def fill_bank_labels(bank: BankAccount, pdf_path: Path | str, vision: VisionExtr
         bank.holder_name = raw["holder_name"]
     if raw.get("address"):
         bank.address = raw["address"]
+
+
+def extract_bank_from_image(image_path: Path | str, vision: VisionExtractor) -> BankAccount:
+    """Bank confirmation came as a photo / screenshot, not a PDF. Use vision
+    to extract every field (the regex-based parser only handles PDFs)."""
+    image_bytes = Path(image_path).read_bytes()
+    raw = vision.extract(
+        images=[image_bytes],
+        instruction=BANK_FULL_INSTRUCTION,
+        task_name="bank_full",
+    )
+    return BankAccount(
+        holder_name=raw.get("holder_name") or "",
+        id_number=raw.get("id_number") or "",
+        bank_code=raw.get("bank_code") or "",
+        bank_name=raw.get("bank_name"),
+        branch=raw.get("branch") or "",
+        account_number=raw.get("account_number") or "",
+        iban=raw.get("iban"),
+        address=raw.get("address"),
+        issue_date=_parse_date(raw.get("issue_date")),
+    )
 
 
 # ---------------------------------------------------------------------------

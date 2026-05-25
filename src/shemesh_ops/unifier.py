@@ -32,6 +32,7 @@ from .parsers.pitsuyim import parse_pitsuyim_report
 from .parsers.tagmulim import parse_tagmulim_report
 from .vision import VisionExtractor
 from .vision.extractors import (
+    extract_bank_from_image,
     extract_id_card,
     fill_bank_labels,
     fill_bl_labels,
@@ -39,6 +40,11 @@ from .vision.extractors import (
     fill_pitsuyim_labels,
     fill_tagmulim_labels,
 )
+
+
+def _is_pdf(path: Path | str) -> bool:
+    s = str(path).lower()
+    return s.endswith(".pdf")
 
 
 @dataclass
@@ -87,7 +93,17 @@ def unify(
             return None
 
     if inputs.bank:
-        bank = _try("bank", lambda: parse_bank_confirmation(inputs.bank))
+        if _is_pdf(inputs.bank):
+            bank = _try("bank", lambda: parse_bank_confirmation(inputs.bank))
+        elif vision is not None:
+            # Image input — vision extracts everything (PDF parser doesn't
+            # know how to read photos).
+            bank = _try("bank (image, vision)", lambda: extract_bank_from_image(inputs.bank, vision))
+        else:
+            notes.append(
+                "bank input is an image but no vision backend configured — "
+                "set SHEMESH_VISION=openai (or ollama) to extract it"
+            )
     if inputs.tagmulim:
         tag = _try("tagmulim", lambda: parse_tagmulim_report(inputs.tagmulim))
     if inputs.pitsuyim:
@@ -98,7 +114,9 @@ def unify(
         bl = _try("bl_history", lambda: parse_bl_history(inputs.bl_history))
 
     if vision is not None:
-        if bank and inputs.bank:
+        # Only fill labels for PDF bank inputs — image inputs already had
+        # everything extracted by extract_bank_from_image above.
+        if bank and inputs.bank and _is_pdf(inputs.bank):
             _try("bank labels (vision)", lambda: fill_bank_labels(bank, inputs.bank, vision))
         if tag and inputs.tagmulim:
             _try("tagmulim labels (vision)", lambda: fill_tagmulim_labels(tag, inputs.tagmulim, vision))

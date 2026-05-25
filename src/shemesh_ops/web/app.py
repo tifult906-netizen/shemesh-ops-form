@@ -46,7 +46,12 @@ from ..review import review_form
 from ..rules import apply_tax_recommendation, compute_tax_recommendation
 from ..storage import SubmissionStore
 from ..unifier import ExtractionInputs, unify
-from ..vision import MockVisionExtractor, OllamaVisionExtractor, VisionExtractor
+from ..vision import (
+    MockVisionExtractor,
+    OllamaVisionExtractor,
+    OpenAIVisionExtractor,
+    VisionExtractor,
+)
 from .insurance_dir import all_companies, emails_for
 from .sessions import Session, store as session_store
 
@@ -77,12 +82,15 @@ ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/jpg", "image/png", "image/webp"}
 
 
 def get_vision() -> Optional[VisionExtractor]:
-    """Resolve a VisionExtractor based on SHEMESH_VISION env (mock|ollama|none)."""
+    """Resolve a VisionExtractor based on SHEMESH_VISION env
+    (mock | ollama | openai | none)."""
     backend = os.environ.get("SHEMESH_VISION", "mock").lower()
     if backend == "none":
         return None
     if backend == "ollama":
         return OllamaVisionExtractor()
+    if backend == "openai":
+        return OpenAIVisionExtractor()
     return MockVisionExtractor()
 
 
@@ -224,10 +232,12 @@ async def upload_submit(
     s = session_store.new()
     log.info("session %s — new upload", s.id)
 
+    # Bank confirmations sometimes arrive as photos/screenshots — accept both.
+    pdf_or_image = ALLOWED_PDF_TYPES | ALLOWED_IMAGE_TYPES
     incoming = {
         "id_front":   (id_front,  ALLOWED_IMAGE_TYPES),
         "id_back":    (id_back,   ALLOWED_IMAGE_TYPES),
-        "bank":       (bank,      ALLOWED_PDF_TYPES),
+        "bank":       (bank,      pdf_or_image),
         "tagmulim":   (tagmulim,  ALLOWED_PDF_TYPES),
         "pitsuyim":   (pitsuyim,  ALLOWED_PDF_TYPES),
         "maslaka":    (maslaka,   ALLOWED_PDF_TYPES),
@@ -241,7 +251,9 @@ async def upload_submit(
         suffix = Path(upload.filename or name).suffix or (".pdf" if "pdf" in (upload.content_type or "") else ".bin")
         dest = s.upload_dir / f"{name}{suffix}"
         size = _save_upload(upload, dest)
-        _validate_magic_bytes(dest, expected_pdf=(allowed is ALLOWED_PDF_TYPES))
+        # Detect whether the file is actually a PDF based on extension/header.
+        is_pdf = suffix.lower() == ".pdf" or "pdf" in (upload.content_type or "").lower()
+        _validate_magic_bytes(dest, expected_pdf=is_pdf)
         log.info("session %s — saved %s (%d bytes) → %s", s.id, name, size, dest.name)
         s.uploads[name] = dest
 
@@ -405,8 +417,12 @@ def _apply_form_post_to_state(fd, pic: ClientPicture, form: OperationForm) -> No
             name = (fd.get(eprefix + "name") or "").strip()
             if not name:
                 continue
+            emp_tax = fd.get(eprefix + "tax_mode") or None
+            if emp_tax not in {"full", "partial", "exempt"}:
+                emp_tax = None
             employers.append(EmployerLine(
                 employer_name=name,
+                tax_mode=emp_tax,
                 tagmulim_full=fd.get(eprefix + "tag_full") == "on",
                 tagmulim_amount=_parse_decimal(fd.get(eprefix + "tag_amount")),
                 pitsuyim_full_tax=fd.get(eprefix + "pit_full_tax") == "on",

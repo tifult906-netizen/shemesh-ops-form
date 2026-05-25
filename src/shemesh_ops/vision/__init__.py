@@ -12,10 +12,12 @@ Public API:
 from .base import VisionExtractor, render_pdf_pages
 from .mock import MockVisionExtractor
 from .ollama_backend import OllamaVisionExtractor
+from .openai_backend import OpenAIVisionExtractor
 
 __all__ = [
     "VisionExtractor",
     "MockVisionExtractor",
     "OllamaVisionExtractor",
+    "OpenAIVisionExtractor",
     "render_pdf_pages",
 ]

@@ -179,10 +179,16 @@ class EmployerLine(BaseModel):
     """One row in the per-פעולה employers table."""
 
     employer_name: str
+    # Per-employer tax choice — overrides the operation-level default. Reps
+    # often have different employers in the same kupa with different tax
+    # treatments (some at full, some exempt) so this is per-row.
+    tax_mode: Optional["TaxMode"] = None
     # תגמולים column: full amount, specific amount, or not selected.
     tagmulim_full: bool = False
     tagmulim_amount: Optional[Decimal] = None
     # פיצויים column: full-tax or tax-exempt, or not selected.
+    # (Kept for backward compat; the renderer prefers `tax_mode` when set
+    # and derives the checkbox state from it.)
     pitsuyim_full_tax: bool = False
     pitsuyim_tax_exempt: bool = False
 
