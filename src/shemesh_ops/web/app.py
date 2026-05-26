@@ -60,6 +60,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name
 
 BASE_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+# Expose the current vision backend to every template (drives the privacy banner).
+templates.env.globals["VISION_BACKEND"] = lambda: os.environ.get("SHEMESH_VISION", "mock").lower()
 
 @asynccontextmanager
 async def _lifespan(app: FastAPI):

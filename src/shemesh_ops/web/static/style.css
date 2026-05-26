@@ -193,6 +193,30 @@ th {
 
 embed { width: 100%; height: 800px; border: 1px solid #ccc; border-radius: 4px; }
 
+.privacy-banner {
+  background: #fdecea;
+  color: #5a1a17;
+  border-bottom: 3px solid #c62828;
+  padding: 10px 24px;
+  font-size: 13px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.privacy-banner strong { color: #c62828; }
+.privacy-banner-mode {
+  display: inline-block;
+  margin-right: 12px;
+  padding: 1px 8px;
+  background: rgba(198, 40, 40, 0.18);
+  border-radius: 10px;
+  font-family: Consolas, monospace;
+  font-size: 11px;
+  color: #5a1a17;
+}
+
 .preview-pages {
   display: flex;
   flex-direction: column;

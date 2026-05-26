@@ -6,6 +6,13 @@
 <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+{% set _vb = VISION_BACKEND() %}
+{% if _vb == 'openai' %}
+<div class="privacy-banner" title="ניתן לעבור למודל מקומי על ידי SHEMESH_VISION=ollama">
+  ⚠ <strong>מודל ענן פעיל</strong> — כל מסמך שתעלה (תעודת זהות, אישור בנק, דוחות מסלקה) נשלח ל-OpenAI בארה"ב לצורך חילוץ הנתונים. <strong>נתוני הלקוח יוצאים מהמחשב.</strong>
+  <span class="privacy-banner-mode">SHEMESH_VISION=openai</span>
+</div>
+{% endif %}
 <header>
   <h1>שמש – טופס תפעול</h1>
   <nav class="steps">

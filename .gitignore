@@ -1,5 +1,10 @@
 __pycache__/
 *.pyc
+
+# Never commit secrets
+.env
+.env.*
+*.key
 .pytest_cache/
 .venv/
 venv/

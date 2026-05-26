@@ -35,6 +35,75 @@ Out of scope:
   Dependabot — see `.github/dependabot.yml`)
 - The MockVisionExtractor's hardcoded synthetic values
 
+## OpenAI key handling (when `SHEMESH_VISION=openai`)
+
+The OpenAI vision backend trades local-only processing for much higher
+Hebrew extraction quality. When this backend is active:
+
+- The web UI shows a red sticky banner on every page: "⚠ מודל ענן פעיל".
+- Every uploaded document (ID card photos, bank confirmations, pension
+  reports) is base64-encoded and POSTed to `api.openai.com`.
+- OpenAI retains API requests for up to **30 days** for abuse monitoring
+  (default for non-Enterprise tiers). For Israeli personal-data
+  compliance you may need a DPA with OpenAI, client consent, or to
+  switch to the local Ollama backend in production.
+
+### Setting up the key (one-time per rep machine)
+
+```powershell
+# In each rep's PowerShell, as that user (not Admin):
+[Environment]::SetEnvironmentVariable('OPENAI_API_KEY', 'sk-...', 'User')
+[Environment]::SetEnvironmentVariable('SHEMESH_VISION', 'openai',  'User')
+# Close + reopen PowerShell for the new env to take effect.
+```
+
+### Usage cap (do this once, on the OpenAI dashboard)
+
+To bound the blast radius if a key leaks:
+
+1. Sign in to https://platform.openai.com/.
+2. Settings → Billing → Usage limits.
+3. Set a **Hard limit** of $20 / month (well above realistic usage —
+   gpt-4o-mini at ~$0.01 per client × ~200 clients/month = $2).
+4. Set a **Soft limit** of $10/month so you get an email warning
+   before the hard cap blocks all requests.
+
+### When to rotate the key
+
+- **Immediately** if you suspect a leak (key shown on a screenshot,
+  committed to git, screen-shared, etc.)
+- **Immediately** if a rep leaves the team
+- **Quarterly** as routine hygiene (1st of Jan / Apr / Jul / Oct)
+- After any laptop loss / theft involving a rep machine
+
+### How to rotate
+
+1. Open https://platform.openai.com/api-keys
+2. Click **+ Create new secret key** — name it `shemesh-ops-form-YYYYMM`
+3. Copy the new `sk-...` value somewhere temporary
+4. Push the new key to each rep's machine (PowerShell as the rep):
+   ```powershell
+   [Environment]::SetEnvironmentVariable('OPENAI_API_KEY', 'sk-NEW...', 'User')
+   ```
+   Then close + reopen any open PowerShell windows.
+5. Back on the dashboard, **revoke the old key** (trash icon next to
+   the old `sk-...`). Don't just create the new one — actively kill
+   the old one so any leaked copy stops working.
+6. Verify: have a rep do a real client extraction. If it succeeds,
+   you're done.
+
+### Storing the key safely
+
+- ✅ Windows User-level environment variable (the recommended setup)
+- ✅ A password manager (1Password / Bitwarden) for the master copy
+- ❌ Never commit to git (`.env` files, scripts, docs)
+- ❌ Never paste into Slack/WhatsApp/email
+- ❌ Never type into a shared screen
+- ❌ Never embed in a `.bat` / `.ps1` file on disk
+
+The repo's `.gitignore` excludes `.env` and the `SECURITY.md` reporting
+flow covers credential-leak reporting.
+
 ## Threat model
 
 This tool is designed for a single trusted rep processing client documents on
