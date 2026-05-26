@@ -91,28 +91,23 @@ def extract_id_card(
 # Bank-confirmation Hebrew labels
 
 BANK_INSTRUCTION = """You are reading an Israeli bank account confirmation (אישור ניהול חשבון).
-Extract these two Hebrew fields exactly as printed:
-  holder_name (שם בעל החשבון),
-  address (כתובת החשבון).
-Use null if a field is not present.
+Extract this Hebrew field exactly as printed:
+  holder_name (שם בעל החשבון)
+Use null if not present.
 """
 
 
 BANK_FULL_INSTRUCTION = """You are reading an Israeli bank account confirmation (אישור ניהול חשבון)
-that may be a photo, screenshot, or scanned page. Extract every field:
+that may be a photo, screenshot, or scanned page. Extract exactly these 4 fields
+(everything else on the page is irrelevant):
 
-  holder_name     (שם בעל החשבון, Hebrew exactly as printed)
-  id_number       (מספר ת"ז של בעל החשבון, 9 digits with leading zero if any)
-  bank_code       (קוד בנק / מספר בנק — 2-3 digits, e.g. 12 for הפועלים, 10 לאומי)
-  bank_name       (שם הבנק בעברית, e.g. "הפועלים", "לאומי")
+  bank_name       (שם הבנק בעברית, e.g. "הפועלים", "לאומי", "דיסקונט")
   branch          (מספר סניף — 3-4 digits)
   account_number  (מספר חשבון — 4-8 digits)
-  iban            (קוד IBAN, starts with IL and is 22-23 chars total)
-  address         (כתובת בעל החשבון בעברית)
-  issue_date      (תאריך הפקת המסמך, ISO YYYY-MM-DD)
+  holder_name     (שם בעל החשבון בעברית, exactly as printed)
 
 Use null for any field that isn't visible. Don't invent values.
-Return a JSON object with exactly these keys.
+Return a JSON object with exactly these 4 keys.
 """
 
 
@@ -127,7 +122,8 @@ def fill_bank_labels(bank: BankAccount, pdf_path: Path | str, vision: VisionExtr
 
 def extract_bank_from_image(image_path: Path | str, vision: VisionExtractor) -> BankAccount:
     """Bank confirmation came as a photo / screenshot, not a PDF. Use vision
-    to extract every field (the regex-based parser only handles PDFs)."""
+    to extract the 4 fields the rep actually uses (bank, branch, account,
+    holder name)."""
     image_bytes = Path(image_path).read_bytes()
     raw = vision.extract(
         images=[image_bytes],
@@ -136,14 +132,11 @@ def extract_bank_from_image(image_path: Path | str, vision: VisionExtractor) -> 
     )
     return BankAccount(
         holder_name=raw.get("holder_name") or "",
-        id_number=raw.get("id_number") or "",
-        bank_code=raw.get("bank_code") or "",
+        id_number="",  # not requested anymore — comes from the ID card
+        bank_code="",  # bank_name is what the form needs; code is internal
         bank_name=raw.get("bank_name"),
         branch=raw.get("branch") or "",
         account_number=raw.get("account_number") or "",
-        iban=raw.get("iban"),
-        address=raw.get("address"),
-        issue_date=_parse_date(raw.get("issue_date")),
     )
 
 

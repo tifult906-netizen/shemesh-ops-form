@@ -37,23 +37,18 @@
 
     <h3>פרטי הבנק (יעד התשלום)</h3>
     <div class="row">
-      <div class="field"><label>בעל החשבון</label>
-        <input type="text" name="holder_name" value="{{ picture.bank.holder_name }}"></div>
       <div class="field"><label>בנק</label>
         <input type="text" name="bank_name" value="{{ picture.bank.bank_name or '' }}"></div>
-      <div class="field"><label>קוד בנק</label>
-        <input type="text" name="bank_code" value="{{ picture.bank.bank_code }}"></div>
       <div class="field"><label>סניף</label>
         <input type="text" name="branch" value="{{ picture.bank.branch }}"></div>
       <div class="field"><label>מספר חשבון</label>
         <input type="text" name="account_number" value="{{ picture.bank.account_number }}"></div>
+      <div class="field"><label>שם בעל החשבון</label>
+        <input type="text" name="holder_name" value="{{ picture.bank.holder_name }}"></div>
     </div>
-    <div class="row">
-      <div class="field"><label>IBAN</label>
-        <input type="text" name="iban" value="{{ picture.bank.iban or '' }}"></div>
-      <div class="field"><label>כתובת</label>
-        <input type="text" name="address" value="{{ picture.bank.address or '' }}"></div>
-    </div>
+    <input type="hidden" name="bank_code" value="{{ picture.bank.bank_code }}">
+    <input type="hidden" name="iban" value="{{ picture.bank.iban or '' }}">
+    <input type="hidden" name="address" value="{{ picture.bank.address or '' }}">
 
     {% if picture.maslaka and picture.maslaka.funds %}
     <h3>קופות שנמצאו ({{ picture.maslaka.funds|length }})</h3>
