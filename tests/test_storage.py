@@ -84,3 +84,50 @@ def test_delete(tmp_path):
     sid = store.save(_form(), _picture())
     store.delete(sid)
     assert store.get(sid) is None
+
+
+def test_cleanup_old_purges_rows_and_pdfs(tmp_path):
+    """`cleanup_old(max_age_days=N)` removes submissions older than N days
+    AND deletes their referenced PDF files from disk."""
+    import sqlite3
+    store = SubmissionStore(tmp_path / "test.db")
+
+    # 1) An "old" submission with a PDF file on disk.
+    old_pdf = tmp_path / "old.pdf"
+    old_pdf.write_bytes(b"%PDF-1.4\nold")
+    sid_old = store.save(_form(), _picture(), pdf_path=old_pdf)
+    # Hack the created_at backwards so it falls outside the retention window.
+    with sqlite3.connect(str(tmp_path / "test.db")) as conn:
+        conn.execute(
+            "UPDATE submissions SET created_at = '2020-01-01T00:00:00' WHERE id = ?",
+            (sid_old,),
+        )
+
+    # 2) A "fresh" submission — should survive cleanup.
+    fresh_pdf = tmp_path / "fresh.pdf"
+    fresh_pdf.write_bytes(b"%PDF-1.4\nfresh")
+    sid_fresh = store.save(_form(), _picture(), pdf_path=fresh_pdf)
+
+    removed = store.cleanup_old(max_age_days=30)
+    assert removed == 1
+
+    assert store.get(sid_old) is None        # row deleted
+    assert not old_pdf.exists()              # PDF gone too
+    assert store.get(sid_fresh) is not None  # fresh one untouched
+    assert fresh_pdf.exists()
+
+
+def test_cleanup_old_handles_missing_pdf_gracefully(tmp_path):
+    """If the PDF file is already gone (manual delete, disk move), the
+    SQL delete should still complete and the row should be removed."""
+    import sqlite3
+    store = SubmissionStore(tmp_path / "test.db")
+    sid = store.save(_form(), _picture(), pdf_path=tmp_path / "does-not-exist.pdf")
+    with sqlite3.connect(str(tmp_path / "test.db")) as conn:
+        conn.execute(
+            "UPDATE submissions SET created_at = '2020-01-01T00:00:00' WHERE id = ?",
+            (sid,),
+        )
+    removed = store.cleanup_old(max_age_days=30)
+    assert removed == 1
+    assert store.get(sid) is None

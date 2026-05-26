@@ -71,6 +71,13 @@ async def _lifespan(app: FastAPI):
             log.info("startup — cleaned up %d expired session folder(s)", n)
     except Exception:
         log.exception("session cleanup failed (non-fatal)")
+    try:
+        days = int(os.environ.get("SHEMESH_SUBMISSION_RETENTION_DAYS", "90"))
+        n = SubmissionStore().cleanup_old(max_age_days=days)
+        if n:
+            log.info("startup — purged %d submission(s) older than %d days", n, days)
+    except Exception:
+        log.exception("submission cleanup failed (non-fatal)")
     yield
 
 

@@ -24,7 +24,7 @@ import json
 import os
 import sqlite3
 from dataclasses import asdict, is_dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Literal, Optional
 
@@ -135,3 +135,28 @@ class SubmissionStore:
     def delete(self, submission_id: int) -> None:
         with self._conn() as c:
             c.execute("DELETE FROM submissions WHERE id = ?", (submission_id,))
+
+    def cleanup_old(self, *, max_age_days: int = 90) -> int:
+        """Delete submissions older than `max_age_days` and remove their
+        referenced PDF files from disk. Returns the count deleted.
+
+        For privacy hygiene: by default an Israeli pension-withdrawal form
+        contains client ת.ז + bank + employer history. Keeping that around
+        forever isn't justifiable for a tool that's just a generation
+        helper. Past the retention window, both the row and the PDF go.
+        """
+        cutoff_iso = (datetime.now() - timedelta(days=max_age_days)).isoformat(timespec="seconds")
+        with self._conn() as c:
+            rows = c.execute(
+                "SELECT id, pdf_path FROM submissions WHERE created_at < ?",
+                (cutoff_iso,),
+            ).fetchall()
+            for row in rows:
+                pdf_path = row["pdf_path"]
+                if pdf_path:
+                    try:
+                        Path(pdf_path).unlink(missing_ok=True)
+                    except OSError:
+                        pass  # best effort; don't block the SQL delete
+            c.execute("DELETE FROM submissions WHERE created_at < ?", (cutoff_iso,))
+        return len(rows)

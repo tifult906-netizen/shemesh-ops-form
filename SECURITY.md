@@ -104,6 +104,29 @@ To bound the blast radius if a key leaks:
 The repo's `.gitignore` excludes `.env` and the `SECURITY.md` reporting
 flow covers credential-leak reporting.
 
+## Data retention
+
+The web app stores two kinds of data on disk:
+
+- **Per-session uploads** in `~/.shemesh-ops/sessions/<id>/` — the raw
+  PDFs + ID photos the rep uploaded for an in-progress submission.
+  Auto-purged at startup if older than **7 days**.
+- **Saved submissions** in `~/.shemesh-ops/submissions.db` (SQLite row)
+  + the generated form PDF on disk. Auto-purged at startup if older
+  than **90 days** (configurable via `SHEMESH_SUBMISSION_RETENTION_DAYS`).
+
+Both rows AND the referenced PDF files are deleted — there's no
+audit-log-only mode. If you need long-term auditing without keeping
+client documents, run a periodic export job before the cleanup window.
+
+For an immediate purge of everything, stop the server, delete the two
+directories, and restart:
+
+```powershell
+Remove-Item -Recurse -Force ~\.shemesh-ops\sessions
+Remove-Item -Force ~\.shemesh-ops\submissions.db
+```
+
 ## Threat model
 
 This tool is designed for a single trusted rep processing client documents on

@@ -112,6 +112,9 @@ Configuration env vars:
 - `OPENAI_API_KEY` (or `SHEMESH_OPENAI_KEY`) — required when `SHEMESH_VISION=openai`
 - `SHEMESH_DB` — SQLite path (default `~/.shemesh-ops/submissions.db`)
 - `SHEMESH_SESSION_ROOT` — upload session dir (default `~/.shemesh-ops/sessions`)
+- `SHEMESH_SUBMISSION_RETENTION_DAYS` — auto-purge submissions older than
+  this many days at startup (default 90; set to a very large number to
+  disable). Removes both the SQL row and the referenced PDF on disk.
 - `SHEMESH_FONT_PATH`, `SHEMESH_FONT_BOLD_PATH` — Hebrew font TTF paths
 - `SHEMESH_INSURANCE_CSV` — override path to the company × email lookup CSV
   (defaults to `insurance_companies.csv` at the repo root; the shipped one
