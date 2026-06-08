@@ -59,6 +59,40 @@ class ReviewResult:
 # Deterministic checks
 
 
+def is_valid_israeli_id(id_number: str) -> bool:
+    """Validate a 9-digit Israeli ID (תעודת זהות) by its check digit.
+
+    The algorithm: weight digits alternately by 1 and 2 (left to right over
+    the zero-padded 9-digit number); for products >= 10, sum their digits
+    (equivalently subtract 9); the grand total must be divisible by 10.
+
+    IDs shorter than 9 digits are left-padded with zeros (the canonical form).
+    Returns False for anything that isn't 9 digits after padding.
+    """
+    s = (id_number or "").strip()
+    if not s.isdigit() or len(s) > 9:
+        return False
+    s = s.zfill(9)
+    total = 0
+    for i, ch in enumerate(s):
+        d = int(ch) * (1 if i % 2 == 0 else 2)
+        total += d if d < 10 else d - 9
+    return total % 10 == 0
+
+
+def _check_id_checkdigit(picture: ClientPicture, form: OperationForm, out: list[ReviewFinding]) -> None:
+    """Flag a client ID whose check digit doesn't validate — a strong signal
+    of an OCR/vision digit swap before it ever reaches the insurer."""
+    cid = picture.identity.id_number
+    if cid and not is_valid_israeli_id(cid):
+        out.append(ReviewFinding(
+            severity="warning",
+            field_path="identity.id_number",
+            issue=f"ספרת ביקורת של ת.ז {cid} אינה תקינה — ייתכן שגיאת זיהוי",
+            source="checkdigit",
+        ))
+
+
 def _check_id_consistency(picture: ClientPicture, form: OperationForm, out: list[ReviewFinding]) -> None:
     canonical = picture.identity.id_number
     if form.cover.client_id and form.cover.client_id != canonical:
@@ -164,6 +198,7 @@ def _check_hebrew_garbled(picture: ClientPicture, out: list[ReviewFinding]) -> N
 
 def deterministic_review(picture: ClientPicture, form: OperationForm) -> list[ReviewFinding]:
     out: list[ReviewFinding] = []
+    _check_id_checkdigit(picture, form, out)
     _check_id_consistency(picture, form, out)
     _check_dates_sane(picture, form, out)
     _check_amounts(form, out)

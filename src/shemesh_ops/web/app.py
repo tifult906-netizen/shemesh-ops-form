@@ -126,6 +126,31 @@ def _save_upload(upload: UploadFile, dest: Path) -> int:
     return total
 
 
+_SAFE_SUFFIXES = {".pdf", ".jpg", ".jpeg", ".png", ".webp"}
+
+
+def _safe_suffix(filename: Optional[str], content_type: Optional[str]) -> str:
+    """Derive a safe, allow-listed file suffix from an upload.
+
+    Never trusts the raw filename: we take only its extension, lowercase it,
+    and fall back to the content-type (then ``.bin``) if it isn't one we
+    recognise. This keeps attacker-controlled text out of the on-disk name.
+    """
+    suffix = Path(filename or "").suffix.lower()
+    if suffix in _SAFE_SUFFIXES:
+        return suffix
+    ct = (content_type or "").lower()
+    if "pdf" in ct:
+        return ".pdf"
+    if "png" in ct:
+        return ".png"
+    if "webp" in ct:
+        return ".webp"
+    if "jpeg" in ct or "jpg" in ct:
+        return ".jpg"
+    return ".bin"
+
+
 def _validate_filetype(upload: UploadFile, allowed: set[str]) -> None:
     if upload.content_type and upload.content_type.lower() not in allowed:
         raise HTTPException(
@@ -135,22 +160,30 @@ def _validate_filetype(upload: UploadFile, allowed: set[str]) -> None:
 
 
 def _validate_magic_bytes(path: Path, expected_pdf: bool) -> None:
-    """Sniff the first few bytes of an uploaded file to catch type spoofing."""
+    """Sniff the leading bytes of an uploaded file to catch type spoofing.
+
+    Defends against a client renaming, say, an HTML/script payload to
+    ``.pdf``/``.jpg`` to slip past the extension/content-type checks. We read
+    12 bytes so the WebP container's ``WEBP`` marker (at offset 8) is covered.
+    """
     with open(path, "rb") as f:
-        header = f.read(8)
-    if expected_pdf and not header.startswith(b"%PDF-"):
-        raise HTTPException(
-            status_code=400,
-            detail=f"קובץ {path.name} אינו PDF תקין (תוכן לא תואם לסיומת)",
-        )
-    if not expected_pdf:
-        # JPEG starts with FFD8FF, PNG with 89504E47, WebP RIFF....WEBP
-        if not (header.startswith(b"\xff\xd8\xff") or header.startswith(b"\x89PNG")
-                or (len(header) >= 4 and header[:4] == b"RIFF")):
+        header = f.read(12)
+    if expected_pdf:
+        if not header.startswith(b"%PDF-"):
             raise HTTPException(
                 status_code=400,
-                detail=f"קובץ {path.name} אינו תמונה תקינה (JPEG/PNG/WebP)",
+                detail=f"קובץ {path.name} אינו PDF תקין (תוכן לא תואם לסיומת)",
             )
+        return
+    # Image branch: JPEG = FFD8FF, PNG = 89 50 4E 47, WebP = "RIFF"....\"WEBP".
+    is_jpeg = header.startswith(b"\xff\xd8\xff")
+    is_png = header.startswith(b"\x89PNG\r\n\x1a\n")
+    is_webp = len(header) >= 12 and header[:4] == b"RIFF" and header[8:12] == b"WEBP"
+    if not (is_jpeg or is_png or is_webp):
+        raise HTTPException(
+            status_code=400,
+            detail=f"קובץ {path.name} אינו תמונה תקינה (JPEG/PNG/WebP)",
+        )
 
 
 def _parse_date(s: Optional[str]) -> Optional[date]:
@@ -257,7 +290,9 @@ async def upload_submit(
         if upload is None or upload.filename in (None, ""):
             continue
         _validate_filetype(upload, allowed)
-        suffix = Path(upload.filename or name).suffix or (".pdf" if "pdf" in (upload.content_type or "") else ".bin")
+        suffix = _safe_suffix(upload.filename, upload.content_type)
+        # `name` is one of our own fixed keys and `suffix` is sanitized, so the
+        # destination can never escape the per-session upload dir.
         dest = s.upload_dir / f"{name}{suffix}"
         size = _save_upload(upload, dest)
         # Detect whether the file is actually a PDF based on extension/header.
@@ -658,7 +693,7 @@ async def health() -> dict:
     return {
         "status": "ok",
         "vision_backend": os.environ.get("SHEMESH_VISION", "mock"),
-        "active_sessions": len(session_store._sessions),
+        "active_sessions": session_store.active_count(),
     }
 
 
@@ -710,12 +745,19 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> HTMLRe
 
 @app.exception_handler(Exception)
 async def generic_exception_handler(request: Request, exc: Exception) -> HTMLResponse:
+    # Log the full traceback server-side, but NEVER render it (or the raw
+    # exception message, which can contain file paths / client data) to the
+    # public error page. Showing a stack trace to end users is an
+    # information-disclosure risk on a public-facing app. Opt in to verbose
+    # in-page errors only for local debugging via SHEMESH_DEBUG=1.
     log.exception("unhandled exception")
+    debug = os.environ.get("SHEMESH_DEBUG", "").lower() in {"1", "true", "yes"}
     return templates.TemplateResponse(
         request, "error.html",
         {"step": None, "session_id": None,
          "status_code": 500,
-         "detail": f"שגיאה כללית: {exc}",
-         "trace": traceback.format_exc()},
+         "detail": (f"שגיאה כללית: {exc}" if debug
+                    else "אירעה שגיאה בלתי צפויה. נסה שוב או התחל הגשה חדשה."),
+         "trace": traceback.format_exc() if debug else None},
         status_code=500,
     )

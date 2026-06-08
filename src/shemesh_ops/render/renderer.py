@@ -12,6 +12,7 @@ throughout the renderer.
 from __future__ import annotations
 
 import io
+import logging
 import os
 from datetime import date
 from decimal import Decimal
@@ -43,24 +44,52 @@ FONT_BOLD_FILE = os.environ.get("SHEMESH_FONT_BOLD_PATH", "C:/Windows/Fonts/aria
 
 HEADER_FILL = Color(0.93, 0.93, 0.93)
 
+log = logging.getLogger("shemesh_ops.render")
+
 _fonts_registered = False
+# Logical-font-name -> built-in fallback, populated when a TTF can't register.
+_FALLBACK_ALIAS: dict[str, str] = {}
 
 
 def _register_fonts_once() -> None:
+    """Register the Hebrew TTF (regular + bold), with a hard guarantee that
+    FONT_NAME / FONT_BOLD_NAME always resolve to *something* renderable.
+
+    Previously, if the configured TTF failed to register (e.g. the default
+    Windows Arial path doesn't exist on a Linux/Mac deployment), FONT_NAME was
+    left unregistered and every `canvas.setFont("Heb", ...)` raised
+    KeyError 'Heb' — turning the whole PDF route into a 500. We now alias the
+    logical names to a reportlab built-in (Helvetica) as a last resort so the
+    PDF still produces (Hebrew glyphs may render as boxes, but it won't crash).
+    """
     global _fonts_registered
     if _fonts_registered:
         return
+
+    regular_ok = False
     try:
         pdfmetrics.registerFont(TTFont(FONT_NAME, FONT_FILE))
+        regular_ok = True
     except Exception:
-        # Fall back to default font; Hebrew will render as boxes but
-        # the PDF will still produce.
-        pass
+        log.warning("Hebrew font %r could not be registered; falling back to a built-in font "
+                    "(Hebrew may render as boxes). Set SHEMESH_FONT_PATH to a valid TTF.", FONT_FILE)
+
+    if not regular_ok:
+        # Alias the logical regular font to a guaranteed built-in. `_font()`
+        # consults this map, so every setFont() call resolves to "Helvetica".
+        _FALLBACK_ALIAS[FONT_NAME] = "Helvetica"
+
+    bold_ok = False
     if Path(FONT_BOLD_FILE).exists():
         try:
             pdfmetrics.registerFont(TTFont(FONT_BOLD_NAME, FONT_BOLD_FILE))
+            bold_ok = True
         except Exception:
             pass
+    if not bold_ok:
+        # Bold falls back to the (possibly-fallback) regular font.
+        _FALLBACK_ALIAS[FONT_BOLD_NAME] = _FALLBACK_ALIAS.get(FONT_NAME, FONT_NAME)
+
     _fonts_registered = True
 
 
@@ -92,9 +121,13 @@ def _y(top_y: float) -> float:
 # Drawing primitives
 
 def _font(bold: bool) -> str:
+    """Resolve the font name to use, honouring any built-in fallback alias set
+    up when a configured TTF failed to register."""
     if bold and FONT_BOLD_NAME in pdfmetrics.getRegisteredFontNames():
         return FONT_BOLD_NAME
-    return FONT_NAME
+    if bold and FONT_BOLD_NAME in _FALLBACK_ALIAS:
+        return _FALLBACK_ALIAS[FONT_BOLD_NAME]
+    return _FALLBACK_ALIAS.get(FONT_NAME, FONT_NAME)
 
 
 def _text(

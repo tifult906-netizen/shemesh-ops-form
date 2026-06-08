@@ -4,6 +4,8 @@ __pycache__/
 # Never commit secrets
 .env
 .env.*
+# The template is safe (no real values) — keep it tracked.
+!.env.example
 *.key
 .pytest_cache/
 .venv/
@@ -24,3 +26,6 @@ demo_form_*.png
 demo_form_output.pdf
 demo_output*.json
 demo_submissions.db
+
+# Real insurance directory (use insurance_companies.example.csv as template)
+insurance_companies.csv
